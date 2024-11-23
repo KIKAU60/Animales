@@ -20,17 +20,35 @@ secuencias_adn = {
     "Koala": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC"
 }
 
-# Definir los aminoácidos esenciales
-aminoacidos_esenciales = ['H', 'I', 'L', 'K', 'M', 'F', 'T', 'W', 'V']
+import streamlit as st
+import pandas as pd
 
-# Función para calcular los aminoácidos esenciales en una proteína
-def calcular_aminoacidos_esenciales(secuencia_adn):
-    secuencia = Seq(secuencia_adn)
-    proteina = secuencia.translate()  # Traducción de la secuencia de ADN a proteína
-    
-    # Contamos los aminoácidos esenciales en la proteína
-    aminoacidos_essenciales_en_proteina = [aa for aa in proteina if aa in aminoacidos_esenciales]
-    return aminoacidos_essenciales_en_proteina
+# Definir los aminoácidos esenciales y su información
+aminoacidos_escenciales_data = {
+    "Aminoácido": [
+        "Histidina", "Isoleucina", "Leucina", "Lisina", "Metionina", 
+        "Fenilalanina", "Treonina", "Triptófano", "Valina"
+    ],
+    "Abreviatura": ["H", "I", "L", "K", "M", "F", "T", "W", "V"],
+    "Esencial": ["Sí", "Sí", "Sí", "Sí", "Sí", 
+                 "Sí", "Sí", "Sí", "Sí"]
+}
+
+# Crear un DataFrame de Pandas con los datos
+df_aminoacidos_escenciales = pd.DataFrame(aminoacidos_escenciales_data)
+
+# Función principal para mostrar la tabla en Streamlit
+def main():
+    # Título de la aplicación
+    st.title("Tabla de Aminoácidos Esenciales")
+
+    # Mostrar la tabla de aminoácidos esenciales
+    st.write("A continuación se muestra una tabla con los aminoácidos esenciales y sus abreviaturas:")
+    st.dataframe(df_aminoacidos_escenciales)  # Mostrar la tabla interactiva
+
+# Ejecutar la aplicación
+if __name__ == "__main__":
+    main()
 
 # Función para generar la doble hélice del ADN
 def generar_helice_adn(secuencia_adn):
