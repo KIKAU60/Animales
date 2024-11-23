@@ -1,5 +1,7 @@
-
 streamlit
 biopython
 matplotlib
 numpy
+py3Dmol 
+scipy 
+pandas
