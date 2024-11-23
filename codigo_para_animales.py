@@ -20,31 +20,51 @@ secuencias_adn = {
     "Koala": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC"
 }
 
-import streamlit as st
-import pandas as pd
+# Definir los aminoácidos esenciales y sus abreviaturas
+aminoacidos_escenciales = [
+    "Histidina", "Isoleucina", "Leucina", "Lisina", "Metionina", 
+    "Fenilalanina", "Treonina", "Triptófano", "Valina"
+]
+aminoacidos_abreviaturas = ["H", "I", "L", "K", "M", "F", "T", "W", "V"]
 
-# Definir los aminoácidos esenciales y su información
-aminoacidos_escenciales_data = {
-    "Aminoácido": [
-        "Histidina", "Isoleucina", "Leucina", "Lisina", "Metionina", 
-        "Fenilalanina", "Treonina", "Triptófano", "Valina"
-    ],
-    "Abreviatura": ["H", "I", "L", "K", "M", "F", "T", "W", "V"],
-    "Esencial": ["Sí", "Sí", "Sí", "Sí", "Sí", 
-                 "Sí", "Sí", "Sí", "Sí"]
-}
+# Función para contar los aminoácidos esenciales en la proteína
+def contar_aminoacidos_escenciales(proteina):
+    # Contamos la cantidad de cada aminoácido en la proteína
+    contador = Counter(proteina)
+    # Crear una lista con la cantidad de aminoácidos esenciales
+    cantidades = [contador[amino] for amino in aminoacidos_abreviaturas]
+    return cantidades
 
-# Crear un DataFrame de Pandas con los datos
-df_aminoacidos_escenciales = pd.DataFrame(aminoacidos_escenciales_data)
-
-# Función principal para mostrar la tabla en Streamlit
+# Función principal de la aplicación Streamlit
 def main():
     # Título de la aplicación
-    st.title("Tabla de Aminoácidos Esenciales")
+    st.title("Cantidad de Aminoácidos Esenciales en el ADN del Animal")
 
-    # Mostrar la tabla de aminoácidos esenciales
-    st.write("A continuación se muestra una tabla con los aminoácidos esenciales y sus abreviaturas:")
-    st.dataframe(df_aminoacidos_escenciales)  # Mostrar la tabla interactiva
+    # Crear un selector para elegir entre los 10 animales
+    animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
+
+    # Obtener la secuencia de ADN del animal seleccionado
+    secuencia_adn = secuencias_adn[animal]
+
+    # Mostrar la secuencia de ADN seleccionada
+    st.write(f"Secuencia de ADN del {animal}: {secuencia_adn}")
+
+    # Traducir la secuencia de ADN a proteína
+    secuencia_proteina = Seq(secuencia_adn).translate()
+
+    # Contar la cantidad de aminoácidos esenciales en la proteína
+    cantidades_aminos = contar_aminoacidos_escenciales(secuencia_proteina)
+
+    # Crear un DataFrame de Pandas con la cantidad de aminoácidos esenciales
+    df_aminoacidos = pd.DataFrame({
+        "Aminoácido": aminoacidos_escenciales,
+        "Abreviatura": aminoacidos_abreviaturas,
+        "Cantidad en la proteína": cantidades_aminos
+    })
+
+    # Mostrar la tabla con las cantidades de aminoácidos esenciales
+    st.write(f"Tabla de aminoácidos esenciales en la proteína del {animal}:")
+    st.dataframe(df_aminoacidos)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
@@ -135,19 +155,7 @@ def main():
     # Visualizar la doble hélice
     generar_helice_adn(secuencia_adn)
 
-    # Calcular y mostrar los aminoácidos esenciales presentes en la proteína
-    aminoacidos_essenciales_en_proteina = calcular_aminoacidos_esenciales(secuencia_adn)
-    conteo_aa_essenciales = Counter(aminoacidos_essenciales_en_proteina)
-
-    # Crear una visualización gráfica de los aminoácidos esenciales
-    aminoacidos, cantidades = zip(*sorted(conteo_aa_essenciales.items()))
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(aminoacidos, cantidades, color='lightcoral')
-    ax.set_title('Cantidad de Aminoácidos Esenciales en la Proteína Codificada')
-    ax.set_xlabel('Aminoácido Esencial')
-    ax.set_ylabel('Cantidad')
-    st.pyplot(fig)  # Mostrar la gráfica en Streamlit
-
+  
     # Obtener y graficar los codones
     codones = obtener_codones(secuencia_adn)
     graficar_codones(codones)
