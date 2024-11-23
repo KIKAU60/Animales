@@ -5,6 +5,21 @@ from mpl_toolkits.mplot3d import Axes3D
 from collections import Counter
 from Bio.Seq import Seq
 
+# Diccionario con secuencias de ADN de 10 animales (esto es solo un ejemplo)
+# Las secuencias deben ser cadenas de bases A, T, C, G
+secuencias_adn = {
+    "Perro": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTA",
+    "Gato": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTT",
+    "Elefante": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCGT",
+    "Delfín": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCAA",
+    "Caballo": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTG",
+    "León": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC",
+    "Oso": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTG",
+    "Tigre": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTT",
+    "Zebra": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTG",
+    "Koala": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC"
+}
+
 # Función para generar la doble hélice del ADN
 def generar_helice_adn(secuencia_adn):
     colores = {'A': 'blue', 'T': 'red', 'C': 'green', 'G': 'yellow'}
@@ -78,19 +93,24 @@ def main():
     # Título de la aplicación
     st.title("Visualización de la Doble Hélice del ADN")
 
-    # Solicitar la secuencia de ADN al usuario
-    secuencia_adn = st.text_input("Introduce la secuencia de ADN (solo A, T, C, G):")
+    # Crear un selector para elegir entre los 10 animales
+    animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
 
-    if secuencia_adn:
-        # Visualizar la doble hélice
-        generar_helice_adn(secuencia_adn)
+    # Obtener la secuencia de ADN del animal seleccionado
+    secuencia_adn = secuencias_adn[animal]
 
-        # Obtener y graficar los codones
-        codones = obtener_codones(secuencia_adn)
-        graficar_codones(codones)
+    # Mostrar la secuencia de ADN seleccionada
+    st.write(f"Secuencia de ADN del {animal}: {secuencia_adn}")
 
-        # Calcular y mostrar la proporción de nucleótidos
-        calcular_proporcion_nucleotidos(secuencia_adn)
+    # Visualizar la doble hélice
+    generar_helice_adn(secuencia_adn)
+
+    # Obtener y graficar los codones
+    codones = obtener_codones(secuencia_adn)
+    graficar_codones(codones)
+
+    # Calcular y mostrar la proporción de nucleótidos
+    calcular_proporcion_nucleotidos(secuencia_adn)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
