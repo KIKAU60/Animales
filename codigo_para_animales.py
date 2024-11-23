@@ -20,11 +20,17 @@ secuencias_adn = {
     "Koala": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC"
 }
 
-# Función para calcular las proteínas codificadas
-def calcular_proteinas(secuencia_adn):
+# Definir los aminoácidos esenciales
+aminoacidos_esenciales = ['H', 'I', 'L', 'K', 'M', 'F', 'T', 'W', 'V']
+
+# Función para calcular los aminoácidos esenciales en una proteína
+def calcular_aminoacidos_esenciales(secuencia_adn):
     secuencia = Seq(secuencia_adn)
     proteina = secuencia.translate()  # Traducción de la secuencia de ADN a proteína
-    return proteina
+    
+    # Contamos los aminoácidos esenciales en la proteína
+    aminoacidos_essenciales_en_proteina = [aa for aa in proteina if aa in aminoacidos_esenciales]
+    return aminoacidos_essenciales_en_proteina
 
 # Función para generar la doble hélice del ADN
 def generar_helice_adn(secuencia_adn):
@@ -97,7 +103,7 @@ def calcular_proporcion_nucleotidos(secuencia_adn):
 # Función principal de la aplicación Streamlit
 def main():
     # Título de la aplicación
-    st.title("Visualización de la Doble Hélice del ADN y Análisis de Proteínas")
+    st.title("Visualización de la Doble Hélice del ADN y Análisis de Aminoácidos Esenciales")
 
     # Crear un selector para elegir entre los 10 animales
     animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
@@ -111,20 +117,17 @@ def main():
     # Visualizar la doble hélice
     generar_helice_adn(secuencia_adn)
 
-    # Calcular y mostrar las proteínas
-    proteina = calcular_proteinas(secuencia_adn)
+    # Calcular y mostrar los aminoácidos esenciales presentes en la proteína
+    aminoacidos_essenciales_en_proteina = calcular_aminoacidos_esenciales(secuencia_adn)
+    conteo_aa_essenciales = Counter(aminoacidos_essenciales_en_proteina)
 
-    # Crear una visualización gráfica de las longitudes de proteínas
-    # Definir los datos para la gráfica de barras
-    proteinas = [proteina]
-    longitudes = [len(proteina)]
-    animales = [animal]
-    
+    # Crear una visualización gráfica de los aminoácidos esenciales
+    aminoacidos, cantidades = zip(*sorted(conteo_aa_essenciales.items()))
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(animales, longitudes, color='skyblue')
-    ax.set_title('Longitud de la Proteína Codificada por el ADN')
-    ax.set_xlabel('Animal')
-    ax.set_ylabel('Longitud de la Proteína (aa)')
+    ax.bar(aminoacidos, cantidades, color='lightcoral')
+    ax.set_title('Cantidad de Aminoácidos Esenciales en la Proteína Codificada')
+    ax.set_xlabel('Aminoácido Esencial')
+    ax.set_ylabel('Cantidad')
     st.pyplot(fig)  # Mostrar la gráfica en Streamlit
 
     # Obtener y graficar los codones
