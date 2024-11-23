@@ -1,7 +1,7 @@
 streamlit
 biopython
 matplotlib
-numpy
-py3Dmol 
-scipy 
+py3Dmol
 pandas
+seaborn
+scipy
