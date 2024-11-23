@@ -114,21 +114,18 @@ def main():
     # Calcular y mostrar las proteínas
     proteina = calcular_proteinas(secuencia_adn)
 
-    # Crear una tabla con las proteínas, su longitud y el nombre del animal
-    datos_proteinas = {
-        "Animal": [animal],
-        "Proteína Codificada": [proteina],
-        "Longitud de la Proteína (aa)": [len(proteina)]
-    }
+    # Crear una visualización gráfica de las longitudes de proteínas
+    # Definir los datos para la gráfica de barras
+    proteinas = [proteina]
+    longitudes = [len(proteina)]
+    animales = [animal]
     
-    # Convertir a DataFrame de pandas
-    df_proteinas = pd.DataFrame(datos_proteinas)
-
-    # Mejorar la tabla con formato
-    st.write("### Tabla de Proteínas Codificadas:")
-    st.dataframe(df_proteinas.style.format({
-        'Longitud de la Proteína (aa)': "{:,.0f}"  # Formato de número sin decimales
-    }).hide_index())  # Ocultar el índice de la tabla para un formato más limpio
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(animales, longitudes, color='skyblue')
+    ax.set_title('Longitud de la Proteína Codificada por el ADN')
+    ax.set_xlabel('Animal')
+    ax.set_ylabel('Longitud de la Proteína (aa)')
+    st.pyplot(fig)  # Mostrar la gráfica en Streamlit
 
     # Obtener y graficar los codones
     codones = obtener_codones(secuencia_adn)
