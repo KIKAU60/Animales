@@ -113,15 +113,22 @@ def main():
 
     # Calcular y mostrar las proteínas
     proteina = calcular_proteinas(secuencia_adn)
-    st.write(f"La proteína codificada por el ADN del {animal} es: {proteina}")
 
-    # Crear una tabla con las proteínas y sus longitudes
+    # Crear una tabla con las proteínas, su longitud y el nombre del animal
     datos_proteinas = {
-        "Proteína": [proteina],
-        "Longitud": [len(proteina)]
+        "Animal": [animal],
+        "Proteína Codificada": [proteina],
+        "Longitud de la Proteína (aa)": [len(proteina)]
     }
+    
+    # Convertir a DataFrame de pandas
     df_proteinas = pd.DataFrame(datos_proteinas)
-    st.write("Tabla de Proteínas Codificadas:", df_proteinas)
+
+    # Mejorar la tabla con formato
+    st.write("### Tabla de Proteínas Codificadas:")
+    st.dataframe(df_proteinas.style.format({
+        'Longitud de la Proteína (aa)': "{:,.0f}"  # Formato de número sin decimales
+    }).hide_index())  # Ocultar el índice de la tabla para un formato más limpio
 
     # Obtener y graficar los codones
     codones = obtener_codones(secuencia_adn)
