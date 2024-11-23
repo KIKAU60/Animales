@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from collections import Counter
 from Bio.Seq import Seq
-import pandas as pd
 
 # Diccionario con secuencias de ADN de 10 animales (esto es solo un ejemplo)
+# Las secuencias deben ser cadenas de bases A, T, C, G
 secuencias_adn = {
     "Perro": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTA",
     "Gato": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTT",
@@ -20,55 +20,31 @@ secuencias_adn = {
     "Koala": "ATGCGTACGTTAGCCTAGCTAGGCTAGGCTC"
 }
 
-# Definir los aminoácidos esenciales y sus abreviaturas
-aminoacidos_escenciales = [
-    "Histidina", "Isoleucina", "Leucina", "Lisina", "Metionina", 
-    "Fenilalanina", "Treonina", "Triptófano", "Valina"
-]
-aminoacidos_abreviaturas = ["H", "I", "L", "K", "M", "F", "T", "W", "V"]
+# Función para graficar la cantidad de nucleótidos
+def graficar_nucleotidos(secuencia_adn):
+    secuencia = Seq(secuencia_adn)
+    
+    count_a = secuencia.count('A')
+    count_t = secuencia.count('T')
+    count_c = secuencia.count('C')
+    count_g = secuencia.count('G')
 
-# Función para contar los aminoácidos esenciales en la proteína
-def contar_aminoacidos_escenciales(proteina):
-    # Contamos la cantidad de cada aminoácido en la proteína
-    contador = Counter(proteina)
-    # Crear una lista con la cantidad de aminoácidos esenciales
-    cantidades = [contador[amino] for amino in aminoacidos_abreviaturas]
-    return cantidades
+    nucleotidos = ['Adenina (A)', 'Timina (T)', 'Citosina (C)', 'Guanina (G)']
+    cantidades = [count_a, count_t, count_c, count_g]
+    colores = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
 
-# Función principal de la aplicación Streamlit
-def main():
-    # Título de la aplicación
-    st.title("Cantidad de Aminoácidos Esenciales en el ADN del Animal")
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.bar(nucleotidos, cantidades, color=colores)
+    ax.set_title("Cantidad de Nucleótidos en la Secuencia de ADN")
+    ax.set_xlabel('Nucleótidos')
+    ax.set_ylabel('Cantidad')
+    st.pyplot(fig)  # Mostrar la gráfica con Streamlit
 
-    # Crear un selector para elegir entre los 10 animales
-    animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
-
-    # Obtener la secuencia de ADN del animal seleccionado
-    secuencia_adn = secuencias_adn[animal]
-
-    # Mostrar la secuencia de ADN seleccionada
-    st.write(f"Secuencia de ADN del {animal}: {secuencia_adn}")
-
-    # Traducir la secuencia de ADN a proteína
-    secuencia_proteina = Seq(secuencia_adn).translate()
-
-    # Contar la cantidad de aminoácidos esenciales en la proteína
-    cantidades_aminos = contar_aminoacidos_escenciales(secuencia_proteina)
-
-    # Crear un DataFrame de Pandas con la cantidad de aminoácidos esenciales
-    df_aminoacidos = pd.DataFrame({
-        "Aminoácido": aminoacidos_escenciales,
-        "Abreviatura": aminoacidos_abreviaturas,
-        "Cantidad en la proteína": cantidades_aminos
-    })
-
-    # Mostrar la tabla con las cantidades de aminoácidos esenciales
-    st.write(f"Tabla de aminoácidos esenciales en la proteína del {animal}:")
-    st.dataframe(df_aminoacidos)
-
-# Ejecutar la aplicación
-if __name__ == "__main__":
-    main()
+# Función para calcular la cantidad de proteínas codificadas
+def calcular_proteinas(secuencia_adn):
+    secuencia = Seq(secuencia_adn)
+    proteina = secuencia.translate()  # Traducción de la secuencia de ADN a proteína
+    return proteina
 
 # Función para generar la doble hélice del ADN
 def generar_helice_adn(secuencia_adn):
@@ -141,7 +117,7 @@ def calcular_proporcion_nucleotidos(secuencia_adn):
 # Función principal de la aplicación Streamlit
 def main():
     # Título de la aplicación
-    st.title("Visualización de la Doble Hélice del ADN y Análisis de Aminoácidos Esenciales")
+    st.title("Visualización de la Doble Hélice del ADN y Análisis de Nucleótidos y Proteínas")
 
     # Crear un selector para elegir entre los 10 animales
     animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
@@ -155,13 +131,19 @@ def main():
     # Visualizar la doble hélice
     generar_helice_adn(secuencia_adn)
 
-  
+    # Graficar la cantidad de nucleótidos (A, T, C, G)
+    graficar_nucleotidos(secuencia_adn)
+
     # Obtener y graficar los codones
     codones = obtener_codones(secuencia_adn)
     graficar_codones(codones)
 
     # Calcular y mostrar la proporción de nucleótidos
     calcular_proporcion_nucleotidos(secuencia_adn)
+
+    # Calcular y mostrar la cantidad de proteínas
+    proteina = calcular_proteinas(secuencia_adn)
+    st.write(f"La proteína codificada por el ADN del {animal} es: {proteina}")
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
