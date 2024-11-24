@@ -4,13 +4,12 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from collections import Counter
 import seaborn as sns
-from io import StringIO
 import random
 import re
 
 # Secuencias de ADN de animales
 secuencias_adn = {
-    "Elefante": "AGCTGACGTAGCGTACGTAAGCTGACTGA",
+    "Elefante": "ATGAGCTGAGAGTCCAGGCGTCGAGGGAGGCGTAGAGGAAGGCGAGT",
     "Perro": "ATCGAGCTGGTAGCGGATCGAAGTCTAGG",
     "Gato": "AAGGCTAGCTAGGTACGTCGAAGTCGAGT",
     "Caballo": "AGGTCGACGTTGAGTCTGAGTGAGTCGA",
@@ -46,37 +45,40 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para analizar secuencias conservadas entre diferentes animales
-def buscar_secuencias_conservadas():
-    secuencias = list(secuencias_adn.values())
-    secuencias_conservadas = []
+# Función para analizar enlaces hidrófobos
+def analizar_enlaces_hidrofobos(secuencia):
+    # Definir regiones hidrófobas como aquellas que contienen "A", "V", "I", "L", "M", "F", "W", "Y"
+    regiones_hidrofobas = re.findall(r'[AVILMFYW]{3,}', secuencia)
+    return regiones_hidrofobas
 
-    # Buscar subsecuencias comunes entre todas las secuencias
-    min_longitud = min(len(seq) for seq in secuencias)
-    for i in range(min_longitud - 2):
-        subsecuencia = secuencias[0][i:i+3]  # Usamos subsecuencias de longitud 3
-        if all(subsecuencia in seq for seq in secuencias):
-            secuencias_conservadas.append(subsecuencia)
+# Función para analizar la longitud de las secuencias
+def analizar_longitud_secuencias():
+    longitudes = [len(secuencia) for secuencia in secuencias_adn.values()]
+    promedio_longitud = np.mean(longitudes)
+    desviacion_longitud = np.std(longitudes)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.hist(longitudes, bins=10, color='skyblue', edgecolor='black')
+    ax.axvline(promedio_longitud, color='red', linestyle='dashed', linewidth=1)
+    ax.axvline(promedio_longitud + desviacion_longitud, color='green', linestyle='dashed', linewidth=1)
+    ax.axvline(promedio_longitud - desviacion_longitud, color='green', linestyle='dashed', linewidth=1)
+    ax.set_title("Distribución de Longitudes de Secuencias de ADN")
+    ax.set_xlabel("Longitud de la Secuencia")
+    ax.set_ylabel("Frecuencia")
+    st.pyplot(fig)
+
+# Función para simular mutaciones genéticas
+def simular_mutaciones(secuencia, num_mutaciones=5):
+    secuencia_mutada = list(secuencia)
+    posiciones = random.sample(range(len(secuencia)), num_mutaciones)
+    nucleotidos = ['A', 'T', 'C', 'G']
     
-    return secuencias_conservadas
-
-# Función para identificar marcos de lectura abiertos (ORFs)
-def identificar_orfs(secuencia):
-    orfs = []
-    for i in range(len(secuencia) - 3):
-        if secuencia[i:i+3] == "ATG":  # Iniciar un ORF (codón de inicio)
-            for j in range(i+3, len(secuencia)-3, 3):
-                if secuencia[j:j+3] == "TAA" or secuencia[j:j+3] == "TAG" or secuencia[j:j+3] == "TGA":  # Codones de parada
-                    orfs.append(secuencia[i:j+3])
-                    break
-    return orfs
-
-# Función para simular la duplicación de ADN a lo largo del tiempo
-def duplicacion_adn(secuencia, ciclos=5):
-    secuencia_duplicada = secuencia
-    for _ in range(ciclos):
-        secuencia_duplicada += secuencia
-    return secuencia_duplicada
+    for pos in posiciones:
+        nucleotido_original = secuencia[pos]
+        nuevo_nucleotido = random.choice([n for n in nucleotidos if n != nucleotido_original])
+        secuencia_mutada[pos] = nuevo_nucleotido
+    
+    return ''.join(secuencia_mutada)
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -95,7 +97,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias Conservadas', 'Identificación de ORFs', 'Duplicación de Secuencia']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Análisis de Enlaces Hidrófobos', 'Longitud de Secuencias', 'Simulación de Mutaciones']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -109,28 +111,23 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Secuencias Conservadas':
-        secuencias_conservadas = buscar_secuencias_conservadas()
-        if secuencias_conservadas:
-            st.write("Las siguientes secuencias están conservadas en todas las especies:")
-            st.write(secuencias_conservadas)
+    elif ilustracion == 'Análisis de Enlaces Hidrófobos':
+        enlaces_hidrofobos = analizar_enlaces_hidrofobos(secuencia_adn)
+        if enlaces_hidrofobos:
+            st.write("Se han encontrado las siguientes regiones hidrófobas:")
+            st.write(enlaces_hidrofobos)
         else:
-            st.write("No se encontraron secuencias conservadas en todas las especies.")
+            st.write("No se encontraron regiones hidrófobas en la secuencia.")
 
-    elif ilustracion == 'Identificación de ORFs':
-        orfs = identificar_orfs(secuencia_adn)
-        if orfs:
-            st.write("Se han identificado los siguientes marcos de lectura abiertos (ORFs):")
-            st.write(orfs)
-        else:
-            st.write("No se identificaron ORFs en la secuencia.")
+    elif ilustracion == 'Longitud de Secuencias':
+        analizar_longitud_secuencias()
 
-    elif ilustracion == 'Duplicación de Secuencia':
-        secuencia_duplicada = duplicacion_adn(secuencia_adn)
+    elif ilustracion == 'Simulación de Mutaciones':
+        secuencia_mutada = simular_mutaciones(secuencia_adn)
         st.write("Secuencia Original:")
         st.text(secuencia_adn)
-        st.write("Secuencia Duplicada (tras varias copias):")
-        st.text(secuencia_duplicada)
+        st.write("Secuencia Tras Mutaciones Aleatorias:")
+        st.text(secuencia_mutada)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
