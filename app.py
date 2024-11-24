@@ -40,7 +40,15 @@ if sidebar_render == "Inicio":
 # Frecuencia de codones
 if sidebar_render == "Frecuencia de codones":
     st.title("🔬 Frecuencia de Codones en la Secuencia de Nucleótidos")
-    st.markdown("Ingresa un **ID de GenBank** para analizar la frecuencia de codones ⬇️")
+    st.markdown("""
+    **Introducción:**
+    Los **codones** son secuencias de tres nucleótidos consecutivos en el ADN que especifican la incorporación de un aminoácido particular durante la traducción de proteínas. La **frecuencia de codones** se refiere a cuántas veces aparecen cada uno de los 64 codones posibles en una secuencia de ADN. Este análisis es crucial para comprender cómo una célula utiliza su código genético, ya que ciertos codones pueden ser más frecuentes que otros debido a su eficiencia en la traducción o su influencia en la estabilidad del ARNm.
+    
+    **Aplicaciones:**
+    - Optimización de la expresión genética.
+    - Estudio de genes en organismos.
+    - Detección de mutaciones.
+    """)
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
