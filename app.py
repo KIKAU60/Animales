@@ -26,7 +26,7 @@ sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codon
 
 # Página de inicio
 if sidebar_render == "Inicio":
-    st.title('🧬 **Bioinformática: Análisis de Nucleótidos desde GenBank**')
+    st.title('🧬 **Bioinformática: Análisis de Nucleótidos**')
 
     st.markdown(""" 
     Este tablero tiene el objetivo de facilitar el análisis y visualización de secuencias de nucleótidos como ADN y ARN. 
@@ -35,6 +35,11 @@ if sidebar_render == "Inicio":
     - **📊 Distribución de bases nitrogenadas**: Analiza la distribución de las bases nitrogenadas A, T, C, G de la secuencia.
     - **🔬 Análisis de Motivos Conservados**: Análisis de secuencias de ADN conservadas en todo el genoma.
     - **🔬 Cálculo de Enriquecimiento de GC**: Calcula y visualiza el contenido de GC a lo largo de la secuencia.
+
+    ***Equipo***:
+    -Ana Camila Gracia Barroso
+    -Ana Paola Teran Rascon
+    -Diana Lizeth Villaescusa Guillen
     """)
 
 # Frecuencia de codones
