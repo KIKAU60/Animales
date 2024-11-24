@@ -8,6 +8,3 @@ pandas
 seaborn
 scipy
 plotly
-matplotlib.pyplot
-mpl_toolkits.mplot3d
-collections.Counter
