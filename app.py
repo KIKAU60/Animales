@@ -4,7 +4,7 @@ from Bio import SeqIO
 import matplotlib.pyplot as plt
 
 # Configuración de Entrez
-Entrez.email = "a223201128@unison.mx"  # Asegúrate de poner tu correo electrónico
+Entrez.email = "tu_email@example.com"  # Asegúrate de poner tu correo electrónico
 
 # Función para obtener la secuencia de ADN desde GenBank usando un Accession ID
 def fetch_dna_from_genbank(accession_id):
@@ -13,7 +13,13 @@ def fetch_dna_from_genbank(accession_id):
         handle = Entrez.efetch(db="nucleotide", id=accession_id, rettype="gb", retmode="text")
         record = SeqIO.read(handle, "genbank")
         handle.close()
-        return record.seq
+
+        # Verificar si la secuencia es válida
+        if hasattr(record, 'seq') and record.seq:
+            return record.seq, None
+        else:
+            return None, "Secuencia no encontrada en el archivo de GenBank."
+
     except Exception as e:
         return None, f"Error al obtener la secuencia de GenBank: {e}"
 
@@ -70,4 +76,3 @@ if st.button("Obtener secuencia desde GenBank"):
             st.error(error_message)
     else:
         st.warning("Por favor, ingresa un Accession ID válido.")
-
