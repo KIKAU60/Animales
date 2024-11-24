@@ -6,6 +6,7 @@ from collections import Counter
 from io import StringIO
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
+from sklearn.metrics import pairwise_distances
 
 # Secuencias de ADN de animales
 secuencias_adn = {
@@ -45,45 +46,38 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para ilustrar la relación filogenética (Árbol)
-def ilustrar_evolucion_filogenetica():
-    # Crear datos de ejemplo (distancias de Hamming entre secuencias de ADN)
-    animals = list(secuencias_adn.keys())
+# Función para crear un heatmap de las secuencias de ADN
+def visualizar_secuencias_heatmap():
+    # Crear una matriz de distancias de Hamming entre las secuencias
     secuencias = list(secuencias_adn.values())
-    
-    # Crear una matriz de distancias de Hamming (simuladas en este caso)
     distancias = np.zeros((len(secuencias), len(secuencias)))
     
     for i in range(len(secuencias)):
         for j in range(len(secuencias)):
             distancias[i, j] = sum([1 for a, b in zip(secuencias[i], secuencias[j]) if a != b])
     
-    # Crear un árbol jerárquico usando scipy
+    # Heatmap con Seaborn
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(distancias, xticklabels=list(secuencias_adn.keys()), yticklabels=list(secuencias_adn.keys()), cmap="YlGnBu", annot=True, fmt="d", ax=ax)
+    ax.set_title("Mapa de Distancia entre Secuencias de ADN")
+    st.pyplot(fig)
+
+# Función para graficar un mapa de similaridad de secuencias
+def mapa_similaridad_secuencias():
+    # Convertir las secuencias a formato binario para comparar
+    def secuencia_a_binaria(secuencia):
+        return [1 if base == 'A' else 0 for base in secuencia]  # Convertir A -> 1, T -> 0
+    
+    secuencias_binarias = [secuencia_a_binaria(secuencia) for secuencia in secuencias_adn.values()]
+    
+    # Calcular distancias entre secuencias (utilizando Hamming o alguna métrica binaria)
+    distancias = pairwise_distances(secuencias_binarias, metric='hamming')
+    
+    # Realizar clustering jerárquico
     linkage = sch.linkage(distancias, method='average')
-    dendrogram = sch.dendrogram(linkage, labels=animals, orientation='right')
+    dendrogram = sch.dendrogram(linkage, labels=list(secuencias_adn.keys()), orientation='top')
     
     st.pyplot()
-
-# Función para identificar y graficar motivos conservados
-def buscar_motivos_conservados(secuencia, longitud_motivo=5):
-    # Buscar motivos conservados de longitud especificada
-    motivos = [secuencia[i:i+longitud_motivo] for i in range(len(secuencia) - longitud_motivo + 1)]
-    counter = Counter(motivos)
-    
-    # Mostrar los motivos más frecuentes
-    motivos_frecuentes = counter.most_common(10)
-    
-    # Crear un gráfico de barras con los motivos más frecuentes
-    motivos_unicos = [motivo for motivo, _ in motivos_frecuentes]
-    frecuencias = [freq for _, freq in motivos_frecuentes]
-    
-    fig = plt.figure(figsize=(10, 6))
-    plt.bar(motivos_unicos, frecuencias, color='lightcoral')
-    plt.xticks(rotation=45, ha='right')
-    plt.xlabel('Motivo Conservado')
-    plt.ylabel('Frecuencia')
-    plt.title(f"Motivos Conservados en la Secuencia de ADN")
-    st.pyplot(fig)
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -102,7 +96,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Evolución Filogenética', 'Motivos Conservados']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Heatmap de Secuencias', 'Mapa de Similaridad']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -116,11 +110,11 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Evolución Filogenética':
-        ilustrar_evolucion_filogenetica()
+    elif ilustracion == 'Heatmap de Secuencias':
+        visualizar_secuencias_heatmap()
 
-    elif ilustracion == 'Motivos Conservados':
-        buscar_motivos_conservados(secuencia_adn)
+    elif ilustracion == 'Mapa de Similaridad':
+        mapa_similaridad_secuencias()
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
