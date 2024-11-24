@@ -1,102 +1,107 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
+import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from collections import Counter
 
-# Secuencias de ADN de animales
+# Secuencias de ADN de animales (solo ejemplos, las secuencias pueden ser ficticias)
 secuencias_adn = {
-    "Elefante": "AGCTGACGTAGCGTACGTAAGCTG...",
-    "Perro": "ATCGAGCTGGTAGCGGATCGAAGT...",
-    "Gato": "AAGGCTAGCTAGGTACGTCGAAGTC...",
-    "Caballo": "AGGTCGACGTTGAGTCTGAGTGA...",
-    "León": "ATGCGATCGTACGAGTGTAGCTAG...",
-    "Tigre": "CTGAGTGAGTCGATAGCGATGCAG...",
-    "Delfín": "AGTCTGATCGGAGTCTACGAGAGT...",
-    "Ballena": "ACGTGAGTACGAGTGTACGTAGTG...",
-    "Cebra": "ATGAGTCTAGGATCGAGTACGAGGT...",
-    "Rinoceronte": "AGTCGTAGGCTAGCTGACGTAGCG..."
+    "Elefante": "AGCTGACGTAGCGTACGTAAGCTGACTGA",
+    "Perro": "ATCGAGCTGGTAGCGGATCGAAGTCTAGG",
+    "Gato": "AAGGCTAGCTAGGTACGTCGAAGTCGAGT",
+    "Caballo": "AGGTCGACGTTGAGTCTGAGTGAGTCGA",
+    "León": "ATGCGATCGTACGAGTGTAGCTAGCGTA",
+    "Tigre": "CTGAGTGAGTCGATAGCGATGCAGTCAG",
+    "Delfín": "AGTCTGATCGGAGTCTACGAGAGTCTGA",
+    "Ballena": "ACGTGAGTACGAGTGTACGTAGTGACTG",
+    "Cebra": "ATGAGTCTAGGATCGAGTACGAGGTCTGA",
+    "Rinoceronte": "AGTCGTAGGCTAGCTGACGTAGCGTAGC"
 }
 
-# Función para generar la hélice de ADN interactiva (simulada)
-def generar_helice_adn_interactiva(secuencia_adn):
-    fig = plt.figure()
+# Función para calcular las proporciones de nucleótidos (A, T, C, G)
+def calcular_proporcion_nucleotidos(secuencia):
+    counter = Counter(secuencia)
+    total = len(secuencia)
+    proporciones = [counter['A'] / total, counter['T'] / total, counter['C'] / total, counter['G'] / total]
+    return proporciones
+
+# Función para graficar la frecuencia de codones (tripletas)
+def graficar_codones(secuencia):
+    codones = [secuencia[i:i+3] for i in range(0, len(secuencia), 3)]
+    counter = Counter(codones)
+    codones_unicos = list(counter.keys())
+    frecuencias = list(counter.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(codones_unicos, frecuencias, color='skyblue')
+    plt.xticks(rotation=90)
+    plt.xlabel('Codón')
+    plt.ylabel('Frecuencia')
+    plt.title('Frecuencia de Codones en la Secuencia')
+    st.pyplot()
+
+# Función para ilustrar la estructura de la doble hélice (gráfico 3D simple)
+def ilustrar_doble_helice(secuencia):
+    fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot(np.random.rand(10), np.random.rand(10), np.random.rand(10), label="ADN en 3D")
-    ax.set_title("Estructura de la Doble Hélice de ADN en 3D")
+    
+    # Simulación de puntos en 3D (esto es solo una representación visual)
+    x = np.random.rand(10)
+    y = np.random.rand(10)
+    z = np.random.rand(10)
+    
+    ax.plot(x, y, z, label="Estructura de la Doble Hélice")
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title("Estructura de la Doble Hélice de ADN")
     ax.legend()
     st.pyplot(fig)
 
-# Función para calcular la frecuencia de aminoácidos en la secuencia de ADN
-def calcular_frecuencia_aminos(secuencia_adn):
-    # Ejemplo de cálculo de frecuencias de aminoácidos
-    aminos = ['A', 'T', 'C', 'G']
-    frecuencias = {amino: secuencia_adn.count(amino) for amino in aminos}
-    return frecuencias
+# Función para mostrar la secuencia de ADN como texto
+def representar_secuencia(secuencia):
+    plt.figure(figsize=(10, 2))
+    plt.text(0.5, 0.5, secuencia, fontsize=12, ha='center', va='center')
+    plt.title("Representación de la Secuencia de ADN")
+    plt.axis('off')
+    st.pyplot()
 
-# Función para graficar la frecuencia de aminoácidos
-def graficar_aminos(frecuencia_aminos):
-    amino_acidos = list(frecuencia_aminos.keys())
-    valores = list(frecuencia_aminos.values())
-    
-    plt.bar(amino_acidos, valores, color='skyblue')
-    plt.xlabel('Aminoácidos')
-    plt.ylabel('Frecuencia')
-    plt.title('Frecuencia de Aminoácidos')
-    st.pyplot(plt)
-
-# Función para generar un mapa genómico (gráfico simulado)
-def generar_mapa_genomico():
-    sns.set(style="whitegrid")
-    data = np.random.rand(10, 10)
-    sns.heatmap(data, annot=True, cmap="coolwarm")
-    plt.title("Mapa Genómico")
-    st.pyplot(plt)
-
-# Función para generar un gráfico de dispersión de las secuencias
-def generar_grafico_dispersión():
-    x = np.random.rand(50)
-    y = np.random.rand(50)
-    plt.scatter(x, y, color='red')
-    plt.xlabel('Coordenada X')
-    plt.ylabel('Coordenada Y')
-    plt.title('Gráfico de Dispersión Genómica')
-    st.pyplot(plt)
-
-# Función principal de la aplicación Streamlit
+# Función principal para la aplicación Streamlit
 def main():
-    # Título de la aplicación
-    st.title("Análisis de ADN de Animales")
-
-    # Crear un selector para elegir entre los 10 animales
+    st.title("Análisis de Secuencias de ADN de Animales")
+    
+    # Selección de un animal
     animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
-
+    
     # Obtener la secuencia de ADN del animal seleccionado
     secuencia_adn = secuencias_adn[animal]
-
-    # Mostrar la secuencia de ADN seleccionada
-    st.write(f"Secuencia de ADN del {animal}: {secuencia_adn}")
-
-    # Agregar indicadores (opciones) para mostrar diferentes gráficos
-    opcion = st.selectbox(
-        "Elige una opción para ver:",
-        ["Ver ADN en 3D", "Frecuencia de Aminoácidos", "Mapa Genómico", "Gráfico de Dispersión"]
+    
+    # Mostrar la secuencia seleccionada
+    st.write(f"Secuencia de ADN del {animal}:")
+    st.text(secuencia_adn)
+    
+    # Opciones de ilustración
+    ilustracion = st.selectbox(
+        "Selecciona la ilustración para la secuencia de ADN:",
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Estructura de Doble Hélice', 'Representación de la Secuencia']
     )
+    
+    # Actualizar visualización según la opción seleccionada
+    if ilustracion == 'Proporciones de Nucleótidos':
+        proporciones = calcular_proporcion_nucleotidos(secuencia_adn)
+        plt.figure(figsize=(8, 8))
+        plt.pie(proporciones, labels=['A', 'T', 'C', 'G'], autopct='%1.1f%%', startangle=140)
+        plt.title("Proporción de Nucleótidos en la Secuencia de ADN")
+        st.pyplot()
 
-    # Ejecutar la opción seleccionada
-    if opcion == "Ver ADN en 3D":
-        st.subheader("Visualización de la Doble Hélice de ADN en 3D")
-        generar_helice_adn_interactiva(secuencia_adn)
-    elif opcion == "Frecuencia de Aminoácidos":
-        st.subheader("Frecuencia de los Aminoácidos derivados del ADN")
-        frecuencia_aminos = calcular_frecuencia_aminos(secuencia_adn)
-        graficar_aminos(frecuencia_aminos)
-    elif opcion == "Mapa Genómico":
-        st.subheader("Mapa Genómico Interactivo")
-        generar_mapa_genomico()
-    elif opcion == "Gráfico de Dispersión":
-        st.subheader("Gráfico de Dispersión Genómica")
-        generar_grafico_dispersión()
+    elif ilustracion == 'Frecuencia de Codones':
+        graficar_codones(secuencia_adn)
+
+    elif ilustracion == 'Estructura de Doble Hélice':
+        ilustrar_doble_helice(secuencia_adn)
+
+    elif ilustracion == 'Representación de la Secuencia':
+        representar_secuencia(secuencia_adn)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
