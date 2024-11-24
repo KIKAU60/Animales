@@ -88,6 +88,7 @@ if sidebar_render == "Análisis de Motivos Conservados":
     st.title("🔬 Análisis de Motivos Conservados")
     st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
 
+    # Entrada para el ID de GenBank
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
 
     if st.button("⚡ ¡Analizar!"):
@@ -101,24 +102,35 @@ if sidebar_render == "Análisis de Motivos Conservados":
                     # Obtener la secuencia de ADN
                     sequence = record.seq
                     
-                    # Supón que hemos identificado algunos motivos conservados
-                    conserved_motifs = ['ATG', 'TAA', 'GGT']
+                    # Supongamos que hemos identificado algunos motivos conservados
+                    conserved_motifs = ['ATG', 'TAA', 'GGT']  # Motivos conservados de ejemplo
                     motif_positions = [i for i in range(len(sequence)) if sequence[i:i+3] in conserved_motifs]
 
-                    # Visualización de los motivos conservados en un gráfico de barras
+                    # Visualización de los motivos conservados en un gráfico de dispersión
                     st.markdown("**🔬 Posiciones de Motivos Conservados**")
-                    fig = go.Figure(data=[go.Bar(
-                        x=list(range(len(motif_positions))),
+                    fig = go.Figure(data=[go.Scatter(
+                        x=motif_positions,
                         y=[1]*len(motif_positions),  # Solo para ilustrar la presencia de los motivos
-                        marker=dict(color='royalblue')
+                        mode='markers',
+                        marker=dict(color='royalblue', size=8),
+                        name="Motivos Conservados"
                     )])
+
+                    # Mejorar la presentación de la gráfica
                     fig.update_layout(
                         title="Posiciones de Motivos Conservados en la Secuencia",
                         xaxis_title="Posición en la secuencia",
                         yaxis_title="Presencia de Motivo",
-                        template="plotly_dark"
+                        template="plotly_dark",
+                        yaxis=dict(range=[0, 2], showticklabels=False),  # No necesitamos etiquetas en el eje y
+                        plot_bgcolor="black",
+                        paper_bgcolor="rgb(17, 17, 17)",
+                        showlegend=False
                     )
+
+                    # Mostrar el gráfico interactivo
                     st.plotly_chart(fig)
+
 
 # Cálculo de Enriquecimiento de GC
 if sidebar_render == "Cálculo de Enriquecimiento de GC":
