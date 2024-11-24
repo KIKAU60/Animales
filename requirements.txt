@@ -3,11 +3,3 @@ numpy==1.21.4
 matplotlib==3.4.3
 ipywidgets==7.6.5
 biopython==1.80
-py3Dmol
-pandas
-seaborn
-scipy
-plotly
-matplotlib.pyplot
-mpl_toolkits.mplot3d
-collections.Counter
