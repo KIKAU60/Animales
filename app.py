@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 
 # Función para obtener la secuencia desde GenBank
 def get_sequence_from_genbank(genbank_id):
-    Entrez.email = "your_email@example.com"  # Cambia esto por tu correo
+    Entrez.email = "a223201128@unison.mx"  # Cambia esto por tu correo
     try:
         # Buscar el ID en GenBank
         handle = Entrez.efetch(db="nucleotide", id=genbank_id, rettype="gb", retmode="text")
