@@ -1,20 +1,67 @@
-import sys
 import streamlit as st
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D
 
-# Añadir la ruta al directorio donde se encuentra 'secuencias_adn.py'
-sys.path.append('secuencias_de_adn.py')
+# Secuencias de ADN de animales
+secuencias_adn = {
+    "Elefante": "AGCTGACGTAGCGTACGTAAGCTG...",
+    "Perro": "ATCGAGCTGGTAGCGGATCGAAGT...",
+    "Gato": "AAGGCTAGCTAGGTACGTCGAAGTC...",
+    "Caballo": "AGGTCGACGTTGAGTCTGAGTGA...",
+    "León": "ATGCGATCGTACGAGTGTAGCTAG...",
+    "Tigre": "CTGAGTGAGTCGATAGCGATGCAG...",
+    "Delfín": "AGTCTGATCGGAGTCTACGAGAGT...",
+    "Ballena": "ACGTGAGTACGAGTGTACGTAGTG...",
+    "Cebra": "ATGAGTCTAGGATCGAGTACGAGGT...",
+    "Rinoceronte": "AGTCGTAGGCTAGCTGACGTAGCG..."
+}
 
-# Ahora puedes importar el archivo 'secuencias_adn' correctamente
-from secuencias_de_adn import secuencias_de_adn
+# Función para generar la hélice de ADN interactiva (simulada)
+def generar_helice_adn_interactiva(secuencia_adn):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(np.random.rand(10), np.random.rand(10), np.random.rand(10), label="ADN en 3D")
+    ax.set_title("Estructura de la Doble Hélice de ADN en 3D")
+    ax.legend()
+    st.pyplot(fig)
 
-# Importar las funciones necesarias
-from funciones_adn import (
-    generar_helice_adn_interactiva,
-    calcular_frecuencia_aminos,
-    graficar_aminos,
-    generar_mapa_genomico,
-    generar_grafico_dispersión
-)
+# Función para calcular la frecuencia de aminoácidos en la secuencia de ADN
+def calcular_frecuencia_aminos(secuencia_adn):
+    # Ejemplo de cálculo de frecuencias de aminoácidos
+    aminos = ['A', 'T', 'C', 'G']
+    frecuencias = {amino: secuencia_adn.count(amino) for amino in aminos}
+    return frecuencias
+
+# Función para graficar la frecuencia de aminoácidos
+def graficar_aminos(frecuencia_aminos):
+    amino_acidos = list(frecuencia_aminos.keys())
+    valores = list(frecuencia_aminos.values())
+    
+    plt.bar(amino_acidos, valores, color='skyblue')
+    plt.xlabel('Aminoácidos')
+    plt.ylabel('Frecuencia')
+    plt.title('Frecuencia de Aminoácidos')
+    st.pyplot(plt)
+
+# Función para generar un mapa genómico (gráfico simulado)
+def generar_mapa_genomico():
+    sns.set(style="whitegrid")
+    data = np.random.rand(10, 10)
+    sns.heatmap(data, annot=True, cmap="coolwarm")
+    plt.title("Mapa Genómico")
+    st.pyplot(plt)
+
+# Función para generar un gráfico de dispersión de las secuencias
+def generar_grafico_dispersión():
+    x = np.random.rand(50)
+    y = np.random.rand(50)
+    plt.scatter(x, y, color='red')
+    plt.xlabel('Coordenada X')
+    plt.ylabel('Coordenada Y')
+    plt.title('Gráfico de Dispersión Genómica')
+    st.pyplot(plt)
 
 # Función principal de la aplicación Streamlit
 def main():
