@@ -1,11 +1,11 @@
-streamlit
-biopython
-matplotlib
+streamlit==1.14.0
+matplotlib==3.4.3
+numpy==1.21.4
+biopython==1.79
 py3Dmol
 pandas
 seaborn
 scipy
-numpy
 plotly
 matplotlib.pyplot
 mpl_toolkits.mplot3d
