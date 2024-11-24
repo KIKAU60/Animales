@@ -98,7 +98,7 @@ import py3Dmol
 import plotly.graph_objects as go
 
 # Configura tu correo para usar Entrez
-Entrez.email = "your_email@example.com"  # Reemplaza con tu correo
+Entrez.email = "a223201128@unison.mx"  # Reemplaza con tu correo
 
 # Función para obtener el registro de GenBank
 def fetch_genbank_record(genbank_id):
