@@ -92,27 +92,48 @@ if sidebar_render == "Distribución de bases nitrogenadas":
                 fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
                 st.plotly_chart(fig)
 
+import py3Dmol
+import plotly.graph_objects as go
+
 # Visualización 3D de ADN
-if sidebar_render == "Visualización 3D de ADN":
-    st.title("🌐 Visualización 3D de ADN")
-    st.markdown("Ingresa un **ID de GenBank** para visualizar la secuencia de ADN en 3D ⬇️")
+def visualize_3D_dna(sequence):
+    """
+    Esta función visualiza la secuencia de ADN en 3D usando la librería py3Dmol.
+    Permite interactuar con la visualización (hacer zoom, alejar, rotar).
+    """
+    # Crear una cadena de ADN
+    viewer = py3Dmol.view(width=800, height=600)
+    
+    # Agregar la secuencia de ADN en formato PDB (para visualización 3D)
+    viewer.addModel(sequence, "pdb")
+    
+    # Configuración para mejorar la visualización (detalles)
+    viewer.setStyle({'stick': {}})
+    viewer.setBackgroundColor('white')
+    viewer.zoomTo()
+    
+    # Opciones de visualización adicionales
+    viewer.setStyle({'cartoon': {'color': 'spectrum'}})  # Colores espectrales para hacerla más vistosa
+    viewer.addStyle({'model': -1}, {'sphere': {'radius': 0.4}})  # Estilo de esferas para mejor visibilidad
+    
+    # Visualizar
+    viewer.show()
 
-    genbank_id = st.text_input("🧬 Ingresa el ID de GenBank para ver la secuencia 3D:", "")
+# Función para obtener el registro de GenBank
+from Bio import Entrez, SeqIO
 
-    if genbank_id:
-        with st.spinner("Cargando datos desde GenBank... 🕒"):
-            record = get_sequence_from_genbank(genbank_id)
-            if record:
-                st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
-
-                # Visualizar la secuencia en 3D
-                st.markdown(f"**🔖 ID de GenBank:** `{record.id}`")
-                st.markdown(f"**📜 Descripción:** {record.description}")
-                st.markdown("**🧪 Secuencia de ADN:**")
-                st.code(str(record.seq), language="text")
-
-                # Visualizar la secuencia de ADN en 3D
-                visualize_3D_dna(record.seq)
+def fetch_genbank_record(genbank_id):
+    """
+    Esta función obtiene el registro de GenBank usando el ID proporcionado.
+    """
+    Entrez.email = "your_email@example.com"  # Debes poner tu correo aquí
+    try:
+        handle = Entrez.efetch(db="nucleotide", id=genbank_id, rettype="gb", retmode="text")
+        record = SeqIO.read(handle, "genbank")
+        return record
+    except Exception as e:
+        st.error(f"Error al recuperar el ID de GenBank: {e}")
+        return None
 
 # Cantidad de proteínas codificadas, genes y cromosomas
 if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
@@ -141,6 +162,24 @@ if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
                     # Mostrar la cantidad de cromosomas
                     chromosomes_count = len([f for f in record.features if f.type == "chromosome"])
                     st.markdown(f"**🔬 Cantidad de cromosomas:** `{chromosomes_count}`")
+                    
+                    # Mejorar la presentación con gráficos
+                    # Gráfico de barras para la cantidad de CDS, Genes y Cromosomas
+                    categories = ['Proteínas Codificadas', 'Genes', 'Cromosomas']
+                    counts = [cds_count, genes_count, chromosomes_count]
+                    
+                    fig = go.Figure(data=[go.Bar(
+                        x=categories,
+                        y=counts,
+                        marker=dict(color=['#ff6347', '#8a2be2', '#20b2aa']),
+                    )])
+                    fig.update_layout(
+                        title="Cantidad de Proteínas Codificadas, Genes y Cromosomas",
+                        xaxis_title="Categoría",
+                        yaxis_title="Cantidad",
+                        template="plotly_dark"
+                    )
+                    st.plotly_chart(fig)
 
                     # Opcionalmente, podemos agregar imágenes ilustrativas si las tenemos disponibles
                     st.image("proteins_coding.png", caption="Proteínas Codificadas", use_column_width=True)
