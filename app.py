@@ -26,7 +26,7 @@ sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codon
 
 # Página de inicio
 if sidebar_render == "Inicio":
-    st.title('🧬 **Bioinformática: Análisis de Nucleótidos**')
+    st.title('🧬 **Bioinformática**')
 st.markdown("""
     ## Bienvenidos al tablero de análisis de secuencias nucleotídicas 🧬
 
