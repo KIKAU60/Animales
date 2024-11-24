@@ -84,32 +84,26 @@ def main():
     # Mostrar índice
     st.sidebar.title("Índice")
     st.sidebar.markdown("""
-    1. **Importación de Librerías**  
-    2. **Configuración Inicial de Entrez**  
-    3. **Funciones del Código**  
-        - `obtener_secuencia_genbank(accession_number)`: Obtiene la secuencia de ADN desde GenBank.  
-        - `calcular_proporcion_nucleotidos(secuencia)`: Calcula las proporciones de nucleótidos en la secuencia de ADN.  
-        - `graficar_codones_interactivo(secuencia)`: Grafica la frecuencia de codones usando Plotly.  
-        - `analizar_replicacion(secuencia)`: Detecta secuencias de replicación en la secuencia de ADN.  
-        - `mostrar_helice_3d()`: Genera una visualización 3D de la hélice de ADN.  
-    4. **Función Principal: `main()`**  
-        - Proporciona una interfaz de usuario para interactuar con la secuencia de ADN y visualizar diferentes gráficos e información.  
+    1. [Importación de Librerías](#importacion-de-librerias)
+    2. [Configuración Inicial de Entrez](#configuracion-inicial-de-entrez)
+    3. [Funciones del Código](#funciones-del-codigo)
+        - [obtener_secuencia_genbank](#obtener-secuencia-genbank)
+        - [calcular_proporcion_nucleotidos](#calcular-proporcion-nucleotidos)
+        - [graficar_codones_interactivo](#graficar-codones-interactivo)
+        - [analizar_replicacion](#analizar-replicacion)
+        - [mostrar_helice_3d](#mostrar-helice-3d)
+    4. [Función Principal](#funcion-principal)
     """)
 
     st.title("Bioinformática: Características del ADN animal")
-    st.sidebar.header("Opciones")
-    st.sidebar.markdown("""
-    1. **Importación de Librerías**
-    2. **Configuración Inicial de Entrez**
-    3. **Funciones del Código**
-        - `obtener_secuencia_genbank(accession_number)`
-        - `calcular_proporcion_nucleotidos(secuencia)`
-        - `graficar_codones_interactivo(secuencia)`
-        - `analizar_replicacion(secuencia)`
-        - `mostrar_helice_3d()`
-    4. **Función Principal: `main()`**
-    """)
     
+    # Sección de introducción
+    st.header("Introducción")
+    st.write("""
+        Esta aplicación te permitirá analizar secuencias de ADN obtenidas desde GenBank, 
+        y visualizar diferentes características e ilustraciones interactivas sobre las secuencias.
+    """)
+
     # Entrada para el número de acceso de GenBank (Accession Number)
     accession_number = st.text_input("Introduce el número de acceso de GenBank (Ej. NM_001003222):")
     
@@ -128,8 +122,13 @@ def main():
                 ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Hélice 3D de ADN']
             )
             
-            # Actualizar visualización según la opción seleccionada
+            # Descripción e ilustración según la opción seleccionada
             if ilustracion == 'Proporciones de Nucleótidos':
+                st.markdown("### Proporciones de Nucleótidos")
+                st.write("""
+                    Esta visualización muestra la distribución de los cuatro nucleótidos (A, T, C, G) 
+                    en la secuencia de ADN introducida.
+                """)
                 proporciones = calcular_proporcion_nucleotidos(secuencia_adn)
                 fig, ax = plt.subplots(figsize=(8, 8))
                 ax.pie(proporciones, labels=['A', 'T', 'C', 'G'], autopct='%1.1f%%', startangle=140)
@@ -137,9 +136,18 @@ def main():
                 st.pyplot(fig)
 
             elif ilustracion == 'Frecuencia de Codones':
+                st.markdown("### Frecuencia de Codones")
+                st.write("""
+                    Esta visualización muestra la frecuencia de aparición de los codones (tripletas de nucleótidos) 
+                    en la secuencia de ADN.
+                """)
                 graficar_codones_interactivo(secuencia_adn)
 
             elif ilustracion == 'Secuencias de Replicación':
+                st.markdown("### Secuencias de Replicación")
+                st.write("""
+                    Aquí se detectan posibles secuencias que puedan indicar orígenes de replicación en la secuencia de ADN.
+                """)
                 secuencias_replicacion = analizar_replicacion(secuencia_adn)
                 if secuencias_replicacion:
                     st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
@@ -148,11 +156,12 @@ def main():
                     st.write("No se encontraron secuencias de replicación en la secuencia.")
 
             elif ilustracion == 'Hélice 3D de ADN':
+                st.markdown("### Hélice 3D de ADN")
+                st.write("""
+                    Esta visualización genera una representación 3D de la hélice de ADN utilizando coordenadas 3D.
+                """)
                 mostrar_helice_3d()
-                
-        else:
-            st.write("No se pudo obtener la secuencia. Verifica el número de acceso.")
-    
+
 # Ejecutar la aplicación
 if __name__ == "__main__":
     main()
