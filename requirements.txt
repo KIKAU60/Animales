@@ -1,5 +1,5 @@
 streamlit==1.14.0
-numpy==1.21.4
+numpy==1.24.0
 matplotlib==3.4.3
 biopython==1.79
 ipywidgets==7.6.5
