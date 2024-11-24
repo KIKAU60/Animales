@@ -39,16 +39,12 @@ st.markdown("""
     - **📊 Distribución de bases nitrogenadas**: Examina la distribución de las bases nitrogenadas (A, T, C, G) a lo largo de la secuencia.
     - **🔬 Análisis de Motivos Conservados**: Estudia los motivos conservados dentro de las secuencias de ADN a lo largo del genoma.
     - **🔬 Cálculo de Enriquecimiento de GC**: Calcula y visualiza el contenido de GC a lo largo de la secuencia.
-
     ### **Equipo**:
     - Ana Camila Gracia Barroso
     - Ana Paola Terán Rascón
     - Diana Lizeth Villaescusa Guillén
-
     ¡Disfruta del análisis y la exploración de las secuencias!
 """)
-
-
 
 # Frecuencia de codones
 if sidebar_render == "Frecuencia de codones":
