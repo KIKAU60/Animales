@@ -83,7 +83,7 @@ if sidebar_render == "Distribución de bases nitrogenadas":
                 fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
                 st.plotly_chart(fig)
 
-# 1. Análisis de Motivos Conservados
+# 1. Análisis de Motivos Conservados con Gráfico de Distribución
 if sidebar_render == "Análisis de Motivos Conservados":
     st.title("🔬 Análisis de Motivos Conservados")
     st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
@@ -106,30 +106,37 @@ if sidebar_render == "Análisis de Motivos Conservados":
                     conserved_motifs = ['ATG', 'TAA', 'GGT']  # Motivos conservados de ejemplo
                     motif_positions = [i for i in range(len(sequence)) if sequence[i:i+3] in conserved_motifs]
 
-                    # Visualización de los motivos conservados en un gráfico de dispersión
-                    st.markdown("**🔬 Posiciones de Motivos Conservados**")
-                    fig = go.Figure(data=[go.Scatter(
-                        x=motif_positions,
-                        y=[1]*len(motif_positions),  # Solo para ilustrar la presencia de los motivos
-                        mode='markers',
-                        marker=dict(color='royalblue', size=8),
-                        name="Motivos Conservados"
-                    )])
+                    # Gráfico de Distribución de Motivos Conservados
+                    st.markdown("**🔬 Distribución de Motivos Conservados a lo largo de la Secuencia**")
 
-                    # Mejorar la presentación de la gráfica
+                    # Crear un gráfico de distribución (gráfico de densidad) de las posiciones de los motivos conservados
+                    fig = go.Figure()
+
+                    # Densidad de distribución de las posiciones de los motivos conservados
+                    fig.add_trace(go.Histogram(
+                        x=motif_positions,
+                        histnorm='probability density',  # Normaliza el histograma
+                        nbinsx=30,  # Ajusta el número de bins (puedes experimentar con este valor)
+                        marker_color='royalblue',  # Color de la gráfica
+                        opacity=0.75,
+                    ))
+
+                    # Mejora de la presentación del gráfico
                     fig.update_layout(
-                        title="Posiciones de Motivos Conservados en la Secuencia",
-                        xaxis_title="Posición en la secuencia",
-                        yaxis_title="Presencia de Motivo",
+                        title="Distribución de Motivos Conservados en la Secuencia",
+                        xaxis_title="Posiciones en la Secuencia de ADN",
+                        yaxis_title="Densidad de Motivos Conservados",
                         template="plotly_dark",
-                        yaxis=dict(range=[0, 2], showticklabels=False),  # No necesitamos etiquetas en el eje y
                         plot_bgcolor="black",
                         paper_bgcolor="rgb(17, 17, 17)",
-                        showlegend=False
+                        showlegend=False,
+                        xaxis=dict(showgrid=True, zeroline=False),
+                        yaxis=dict(showgrid=True, zeroline=False)
                     )
 
                     # Mostrar el gráfico interactivo
                     st.plotly_chart(fig)
+
 
 
 # Cálculo de Enriquecimiento de GC
