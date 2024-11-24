@@ -120,7 +120,7 @@ if sidebar_render == "Análisis de Motivos Conservados":
                     )
                     st.plotly_chart(fig)
 
-# 2. Cálculo de Enriquecimiento de GC
+# Cálculo de Enriquecimiento de GC
 if sidebar_render == "Cálculo de Enriquecimiento de GC":
     st.title("🔬 Cálculo de Enriquecimiento de GC")
     st.markdown("Introduce el ID de GenBank para analizar el contenido de GC en la secuencia de ADN. 🌟")
@@ -149,4 +149,25 @@ if sidebar_render == "Cálculo de Enriquecimiento de GC":
                         y=gc_blocks,
                         marker=dict(color='green')
                     )])
-                    fig.update
+
+                    # Actualización del gráfico para mejorar la visualización
+                    fig.update_layout(
+                        title="Enriquecimiento de GC a lo largo de la secuencia",
+                        xaxis_title="Bloque de nucleótidos",
+                        yaxis_title="Contenido de GC (%)",
+                        template="plotly_dark",
+                        xaxis=dict(
+                            tickmode='array',
+                            tickvals=block_indices,
+                            ticktext=[f"Bloque {i+1}" for i in block_indices],
+                        ),
+                        yaxis=dict(
+                            range=[0, 100],
+                            ticksuffix="%"
+                        ),
+                        plot_bgcolor="black",
+                        paper_bgcolor="rgb(17, 17, 17)",
+                    )
+
+                    # Mostrar el gráfico de barras interactivo
+                    st.plotly_chart(fig)
