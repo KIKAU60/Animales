@@ -1,6 +1,6 @@
 from Bio.Seq import Seq
 from Bio import Entrez, SeqIO
-from Bio.SeqUtils import molecular_weight, gc_content
+from Bio.SeqUtils import molecular_weight, gc_fraction  # Usamos gc_fraction en lugar de gc_content
 import streamlit as st
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -131,7 +131,7 @@ if sidebar_render == "Parámetros de la estructura":
             st.markdown("<h3 style='text-align: center; color: #4CAF50;'>✨ Propiedades calculadas de la secuencia ✨</h3>", unsafe_allow_html=True)
 
             # Contenido de GC
-            gc_percentage = round(gc_content(sequence_reference) * 100, 2)
+            gc_percentage = round(gc_fraction(sequence_reference) * 100, 2)  # Usar gc_fraction en lugar de gc_content
             st.markdown("**1️⃣ Contenido de GC:**")
             st.info(f"⚖️ **Contenido de GC:** `{gc_percentage}%`")
             st.markdown("El contenido de GC es la proporción de bases de guanina y citosina en una secuencia de ADN.")
