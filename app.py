@@ -84,7 +84,7 @@ def main():
     st.title("Análisis de Secuencias de ADN desde GenBank")
     
     # Entrada para el número de acceso de GenBank (Accession Number)
-    accession_number = st.text_input("Introduce el número de acceso de GenBank (Accession Number):")
+    accession_number = st.text_input("Introduce el número de acceso de GenBank (Ej. NM_001003222):")
     
     if accession_number:
         # Obtener la secuencia de ADN y el nombre del organismo desde GenBank
