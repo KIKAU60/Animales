@@ -116,31 +116,36 @@ if sidebar_render == "Visualización 3D de ADN":
 
 # Cantidad de proteínas codificadas, genes y cromosomas
 if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
-    st.title("🧬 Cantidad de Proteínas Codificadas, Genes y Cromosomas")
-    st.markdown("Ingresa un **ID de GenBank** para obtener la cantidad de proteínas codificadas, genes y cromosomas ⬇️")
+    st.title("🔬 Cantidad de Proteínas Codificadas, Genes y Cromosomas")
+    st.markdown("Introduce el ID de GenBank para analizar la cantidad de proteínas codificadas, genes y cromosomas. 🌟")
 
-    genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
+    # Entrada para el ID de GenBank
+    genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
 
-    if genbank_id:
-        with st.spinner("Cargando datos desde GenBank... 🕒"):
-            record = get_sequence_from_genbank(genbank_id)
-            if record:
-                st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
+    if st.button("⚡ ¡Analizar!"):
+        if not genbank_id:
+            st.error("Por favor, ingresa un ID de GenBank válido.")
+        else:
+            with st.spinner("Cargando información desde GenBank... 🕒"):
+                # Acceder a GenBank con Biopython
+                record = fetch_genbank_record(genbank_id)
+                if record:
+                    # Mostrar la cantidad de proteínas codificadas
+                    cds_count = sum(1 for feature in record.features if feature.type == "CDS")
+                    st.markdown(f"**🔬 Proteínas codificadas (CDS):** `{cds_count}`")
+                    
+                    # Mostrar la cantidad de genes
+                    genes_count = sum(1 for feature in record.features if feature.type == "gene")
+                    st.markdown(f"**🌿 Cantidad de genes:** `{genes_count}`")
+                    
+                    # Mostrar la cantidad de cromosomas
+                    chromosomes_count = len([f for f in record.features if f.type == "chromosome"])
+                    st.markdown(f"**🔬 Cantidad de cromosomas:** `{chromosomes_count}`")
 
-                # Obtener información adicional
-                cds_count = len([feature for feature in record.features if feature.type == 'CDS'])
-                gene_count = len([feature for feature in record.features if feature.type == 'gene'])
-                chromosome_count = len([feature for feature in record.features if feature.type == 'chromosome'])
-
-                # Mostrar los resultados
-                st.markdown(f"**Proteínas Codificadas (CDS):** {cds_count}")
-                st.markdown(f"**Cantidad de Genes:** {gene_count}")
-                st.markdown(f"**Cantidad de Cromosomas:** {chromosome_count}")
-
-                # Opcionalmente, podemos agregar imágenes ilustrativas si las tenemos disponibles
-                st.image("proteins_coding.png", caption="Proteínas Codificadas", use_column_width=True)
-                st.image("genes_count.png", caption="Cantidad de Genes", use_column_width=True)
-                st.image("chromosomes_count.png", caption="Cantidad de Cromosomas", use_column_width=True
+                    # Opcionalmente, podemos agregar imágenes ilustrativas si las tenemos disponibles
+                    st.image("proteins_coding.png", caption="Proteínas Codificadas", use_column_width=True)
+                    st.image("genes_count.png", caption="Cantidad de Genes", use_column_width=True)
+                    st.image("chromosomes_count.png", caption="Cantidad de Cromosomas", use_column_width=True)
 
 # Información adicional o conclusiones
 if sidebar_render != "Inicio":
@@ -148,4 +153,3 @@ if sidebar_render != "Inicio":
     Para obtener más detalles sobre cómo interpretar los resultados o cómo funciona el análisis de secuencias de GenBank, consulta la documentación de Biopython o el sitio web oficial de GenBank.
     Si deseas realizar otro análisis, simplemente elige una de las opciones en el menú lateral.
     """)
-
