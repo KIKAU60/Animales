@@ -27,27 +27,27 @@ sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codon
 # Página de inicio
 if sidebar_render == "Inicio":
     st.title('🧬 **Bioinformática: Análisis de Nucleótidos**')
-
-   st.markdown("""
+st.markdown("""
     ## Bienvenidos al tablero de análisis de secuencias nucleotídicas 🧬
-    
+
     Este tablero está diseñado para facilitar el análisis y la visualización de secuencias de ADN y ARN. 
     A través de este portal, puedes ingresar un **ID de GenBank** para obtener la secuencia asociada y estudiar sus propiedades fundamentales.
-    
+
     ### Secciones disponibles:
-    
+
     - **🔬 Frecuencia de codones**: Analiza la frecuencia de codones presentes en la secuencia de nucleótidos.
     - **📊 Distribución de bases nitrogenadas**: Examina la distribución de las bases nitrogenadas (A, T, C, G) a lo largo de la secuencia.
     - **🔬 Análisis de Motivos Conservados**: Estudia los motivos conservados dentro de las secuencias de ADN a lo largo del genoma.
     - **🔬 Cálculo de Enriquecimiento de GC**: Calcula y visualiza el contenido de GC a lo largo de la secuencia.
 
-    ### **Equipo de desarrollo**:
+    ### **Equipo**:
     - Ana Camila Gracia Barroso
     - Ana Paola Terán Rascón
     - Diana Lizeth Villaescusa Guillén
-    
+
     ¡Disfruta del análisis y la exploración de las secuencias!
 """)
+
 
 
 # Frecuencia de codones
