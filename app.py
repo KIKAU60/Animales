@@ -30,8 +30,8 @@ def calculate_gc_content(sequence):
 
 # Función para analizar y mostrar la secuencia de ADN
 def visualize_dna(sequence):
-    if sequence:
-        sequence = sequence.strip().upper()  # Limpiar y convertir a mayúsculas
+    if sequence and len(sequence) > 0:
+        sequence = sequence.upper()  # Convertir la secuencia a mayúsculas
         length = len(sequence)
         gc_content = calculate_gc_content(sequence)
 
@@ -56,7 +56,7 @@ def visualize_dna(sequence):
         st.pyplot(fig)
 
     else:
-        st.warning("Por favor, introduce una secuencia de ADN válida.")
+        st.warning("La secuencia de ADN no se pudo obtener o está vacía. Por favor, verifica el ID de acceso.")
 
 # Título de la aplicación
 st.title("Análisis de Secuencias de ADN Animal")
