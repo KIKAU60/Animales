@@ -7,6 +7,7 @@ import seaborn as sns
 from io import StringIO
 from sklearn.metrics import pairwise_distances
 from scipy.cluster.hierarchy import dendrogram, linkage
+import re
 
 # Secuencias de ADN de animales
 secuencias_adn = {
@@ -46,56 +47,28 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para analizar la distribución de las secuencias
-def graficar_distribucion():
-    # Calcular proporciones de A, T, C, G para cada secuencia
-    proporciones = {}
-    for animal, secuencia in secuencias_adn.items():
-        proporciones[animal] = calcular_proporcion_nucleotidos(secuencia)
-    
-    # Convertir en formato adecuado para gráfico
-    labels = ['A', 'T', 'C', 'G']
-    distribucion = np.array([list(proporciones[animal]) for animal in secuencias_adn])
+# Función para buscar palíndromos en la secuencia de ADN
+def buscar_palindromos(secuencia):
+    # Definir el patrón de palíndromos (secuencias que se leen igual de izquierda a derecha que de derecha a izquierda)
+    palindromos = []
+    for i in range(len(secuencia)):
+        for j in range(i+4, len(secuencia)+1):  # Palíndromos de longitud mínima 4
+            sub_secuencia = secuencia[i:j]
+            if sub_secuencia == sub_secuencia[::-1]:  # Verifica si es un palíndromo
+                palindromos.append(sub_secuencia)
+    return palindromos
 
-    # Graficar la distribución de bases con un gráfico de dispersión
-    fig, ax = plt.subplots(figsize=(8, 8))
-    scatter = ax.scatter(distribucion[:, 0], distribucion[:, 1], c=distribucion[:, 2], s=100, cmap='viridis')
-    ax.set_xlabel('Proporción A')
-    ax.set_ylabel('Proporción T')
-    ax.set_title('Distribución de Secuencias de ADN por Proporción de Bases')
-    fig.colorbar(scatter, ax=ax, label='Proporción C')
-    ax.legend([animal for animal in secuencias_adn], title='Animales')
-    st.pyplot(fig)
+# Función para replicar una secuencia de ADN (simulación)
+def replicar_secuencia(secuencia):
+    # Simula la replicación de ADN: simplemente se duplica la secuencia
+    return secuencia + secuencia
 
-# Función para graficar un análisis de la longitud de secuencias
-def graficar_longitud_secuencias():
-    longitudes = {animal: len(secuencia) for animal, secuencia in secuencias_adn.items()}
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.bar(longitudes.keys(), longitudes.values(), color='skyblue')
-    ax.set_xlabel('Animal')
-    ax.set_ylabel('Longitud de Secuencia (nucleótidos)')
-    ax.set_title('Longitud de Secuencias de ADN de Diferentes Animales')
-    st.pyplot(fig)
-
-# Función para simular mutaciones aleatorias en las secuencias de ADN
-def graficar_mutaciones():
-    # Simulación de mutaciones: seleccionamos una base al azar y la mutamos
-    def mutar_secuencia(secuencia):
-        pos = np.random.randint(0, len(secuencia))  # Posición aleatoria en la secuencia
-        base_original = secuencia[pos]
-        bases = ['A', 'T', 'C', 'G']
-        bases.remove(base_original)  # Excluir la base original
-        nueva_base = np.random.choice(bases)  # Elegir una nueva base aleatoria
-        mutada = secuencia[:pos] + nueva_base + secuencia[pos+1:]
-        return mutada
-
-    secuencia_mutada = mutar_secuencia(secuencias_adn['Perro'])  # Ejemplo: mutar la secuencia del Perro
-
-    # Mostrar antes y después de la mutación
-    st.write(f"Secuencia Original del Perro: {secuencias_adn['Perro']}")
-    st.write(f"Secuencia Mutada: {secuencia_mutada}")
-    st.write("Se ha mutado un solo nucleótido aleatorio en la secuencia.")
+# Función para detectar motivos de unión de proteínas
+def detectar_motivos_union(secuencia):
+    # Buscar patrones comunes en la secuencia que podrían ser sitios de unión de proteínas (ejemplo simple)
+    # Por ejemplo, buscamos secuencias de 6 bases (que podrían representar motivos de unión)
+    patrones = re.findall(r'(?=(ATG[A-Z]{3}G))', secuencia)  # Simple búsqueda de patrones
+    return patrones
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -114,7 +87,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Distribución de Secuencias', 'Longitud de Secuencias', 'Mutaciones Aleatorias']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Palíndromos en ADN', 'Replicación de Secuencia', 'Motivos de Unión de Proteínas']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -128,14 +101,28 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Distribución de Secuencias':
-        graficar_distribucion()
+    elif ilustracion == 'Palíndromos en ADN':
+        palindromos = buscar_palindromos(secuencia_adn)
+        if palindromos:
+            st.write("Se han encontrado los siguientes palíndromos en la secuencia:")
+            st.write(palindromos)
+        else:
+            st.write("No se han encontrado palíndromos en la secuencia.")
 
-    elif ilustracion == 'Longitud de Secuencias':
-        graficar_longitud_secuencias()
+    elif ilustracion == 'Replicación de Secuencia':
+        secuencia_replicada = replicar_secuencia(secuencia_adn)
+        st.write("Secuencia Original:")
+        st.text(secuencia_adn)
+        st.write("Secuencia Replicada (duplicada):")
+        st.text(secuencia_replicada)
 
-    elif ilustracion == 'Mutaciones Aleatorias':
-        graficar_mutaciones()
+    elif ilustracion == 'Motivos de Unión de Proteínas':
+        motivos = detectar_motivos_union(secuencia_adn)
+        if motivos:
+            st.write("Se han encontrado los siguientes motivos de unión de proteínas:")
+            st.write(motivos)
+        else:
+            st.write("No se han encontrado motivos de unión de proteínas en la secuencia.")
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
