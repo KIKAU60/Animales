@@ -100,33 +100,4 @@ def mostrar_tabla_codones(codones):
     df = pd.DataFrame(list(zip(codones, frecuencias)), columns=["Codón", "Frecuencia"])
     st.write(df)
 
-# Función principal de la aplicación Streamlit
-def main():
-    # Título de la aplicación
-    st.title("Análisis de ADN de Animales")
-
-    # Crear un selector para elegir entre los 15 animales
-    animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
-
-    # Obtener la secuencia de ADN del animal seleccionado
-    secuencia_adn = secuencias_adn[animal]
-
-    # Mostrar la secuencia de ADN seleccionada
-    st.write(f"Secuencia de ADN del {animal}: {secuencia_adn}")
-
-    # Mostrar la representación 3D de la doble hélice
-    generar_helice_adn(secuencia_adn)
-
-    # Calcular y mostrar la proporción de nucleótidos
-    calcular_proporcion_nucleotidos(secuencia_adn)
-
-    # Obtener y mostrar los codones
-    codones = obtener_codones(secuencia_adn)
-    graficar_codones(codones)
-
-    # Mostrar la tabla de codones
-    mostrar_tabla_codones(codones)
-
-# Ejecutar la aplicación
-if __name__ == "__main__":
-    main()
+# Función principal de la aplicación
