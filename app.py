@@ -36,10 +36,10 @@ if sidebar_render == "Inicio":
     - **🔬 Análisis de Motivos Conservados**: Análisis de secuencias de ADN conservadas en todo el genoma.
     - **🔬 Cálculo de Enriquecimiento de GC**: Calcula y visualiza el contenido de GC a lo largo de la secuencia.
 
-    ***Equipo***:
-    -Ana Camila Gracia Barroso
-    -Ana Paola Teran Rascon
-    -Diana Lizeth Villaescusa Guillen
+    **Equipo**:.
+    -Ana Camila Gracia Barroso.
+    -Ana Paola Teran Rascon.
+    -Diana Lizeth Villaescusa Guillen.
     """)
 
 # Frecuencia de codones
