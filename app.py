@@ -83,7 +83,7 @@ if sidebar_render == "Distribución de bases nitrogenadas":
                 fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
                 st.plotly_chart(fig)
 
-# 1. Análisis de Motivos Conservados con Gráfico de Distribución
+# 1. Análisis de Motivos Conservados con Heatmap
 if sidebar_render == "Análisis de Motivos Conservados":
     st.title("🔬 Análisis de Motivos Conservados")
     st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
@@ -106,38 +106,39 @@ if sidebar_render == "Análisis de Motivos Conservados":
                     conserved_motifs = ['ATG', 'TAA', 'GGT']  # Motivos conservados de ejemplo
                     motif_positions = [i for i in range(len(sequence)) if sequence[i:i+3] in conserved_motifs]
 
-                    # Gráfico de Distribución de Motivos Conservados
-                    st.markdown("**🔬 Distribución de Motivos Conservados a lo largo de la Secuencia**")
+                    # Convertimos las posiciones de los motivos conservados en una matriz de intensidad
+                    motif_matrix = [0] * len(sequence)
+                    for pos in motif_positions:
+                        motif_matrix[pos] = 1  # Marca con 1 donde el motivo está presente
 
-                    # Crear un gráfico de distribución (gráfico de densidad) de las posiciones de los motivos conservados
-                    fig = go.Figure()
+                    # Crear una visualización de Heatmap con la intensidad de los motivos conservados
+                    st.markdown("**🔬 Heatmap de Motivos Conservados a lo largo de la Secuencia**")
 
-                    # Densidad de distribución de las posiciones de los motivos conservados
-                    fig.add_trace(go.Histogram(
-                        x=motif_positions,
-                        histnorm='probability density',  # Normaliza el histograma
-                        nbinsx=30,  # Ajusta el número de bins (puedes experimentar con este valor)
-                        marker_color='royalblue',  # Color de la gráfica
-                        opacity=0.75,
+                    # Crear el heatmap usando Plotly
+                    fig = go.Figure(data=go.Heatmap(
+                        z=[motif_matrix],  # Los datos de la matriz
+                        colorscale='Viridis',  # Escala de colores (puedes elegir otras como 'Cividis', 'Inferno', etc.)
+                        colorbar=dict(title="Intensidad"),
+                        showscale=True,  # Muestra la escala de colores
+                        zmin=0,  # Mínimo valor de la escala
+                        zmax=1,  # Máximo valor de la escala
                     ))
 
                     # Mejora de la presentación del gráfico
                     fig.update_layout(
-                        title="Distribución de Motivos Conservados en la Secuencia",
+                        title="Heatmap de Motivos Conservados en la Secuencia de ADN",
                         xaxis_title="Posiciones en la Secuencia de ADN",
-                        yaxis_title="Densidad de Motivos Conservados",
-                        template="plotly_dark",
+                        yaxis_title="Motivos Conservados (0 = Ausente, 1 = Presente)",
+                        template="plotly_dark",  # Estilo oscuro
                         plot_bgcolor="black",
                         paper_bgcolor="rgb(17, 17, 17)",
                         showlegend=False,
                         xaxis=dict(showgrid=True, zeroline=False),
-                        yaxis=dict(showgrid=True, zeroline=False)
+                        yaxis=dict(showgrid=True, zeroline=False),
                     )
 
                     # Mostrar el gráfico interactivo
                     st.plotly_chart(fig)
-
-
 
 # Cálculo de Enriquecimiento de GC
 if sidebar_render == "Cálculo de Enriquecimiento de GC":
