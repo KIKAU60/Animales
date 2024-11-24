@@ -140,7 +140,7 @@ if sidebar_render == "Análisis de Motivos Conservados":
                     # Mostrar el gráfico interactivo
                     st.plotly_chart(fig)
 
-# Cálculo de Enriquecimiento de GC
+# Cálculo de Enriquecimiento de GC con gráfico de líneas
 if sidebar_render == "Cálculo de Enriquecimiento de GC":
     st.title("🔬 Cálculo de Enriquecimiento de GC")
     st.markdown("Introduce el ID de GenBank para analizar el contenido de GC en la secuencia de ADN. 🌟")
@@ -162,12 +162,14 @@ if sidebar_render == "Cálculo de Enriquecimiento de GC":
                     gc_blocks = [gc_fraction(sequence[i:i+100]) * 100 for i in range(0, len(sequence), 100)]
                     block_indices = [i for i in range(len(gc_blocks))]
 
-                    # Crear gráfico de barras interactivo para el contenido de GC en bloques
+                    # Crear gráfico de líneas interactivo para el contenido de GC en bloques
                     st.markdown("**🔬 Enriquecimiento de GC en la Secuencia**")
-                    fig = go.Figure(data=[go.Bar(
+                    fig = go.Figure(data=[go.Scatter(
                         x=block_indices,
                         y=gc_blocks,
-                        marker=dict(color='green')
+                        mode='lines+markers',  # Línea con marcadores
+                        marker=dict(color='green'),
+                        line=dict(width=2)
                     )])
 
                     # Actualización del gráfico para mejorar la visualización
@@ -189,5 +191,5 @@ if sidebar_render == "Cálculo de Enriquecimiento de GC":
                         paper_bgcolor="rgb(17, 17, 17)",
                     )
 
-                    # Mostrar el gráfico de barras interactivo
+                    # Mostrar el gráfico de líneas interactivo
                     st.plotly_chart(fig)
