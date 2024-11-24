@@ -31,19 +31,19 @@ def visualize_3D_dna(sequence):
 
 # Página principal
 st.sidebar.header("Nucleótidos Operaciones 🧬")
-sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codones", "Distribución de bases nitrogenadas", "Visualización 3D de ADN", "Cantidad de proteínas codificadas, genes y cromosomas"])
+sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codones", "Distribución de bases nitrogenadas", "Análisis de Motivos Conservados", "Cálculo de Enriquecimiento de GC"])
 
 # Página de inicio
 if sidebar_render == "Inicio":
     st.title('🧬 **Bioinformática: Análisis de Nucleótidos desde GenBank**')
 
-    st.markdown("""
+    st.markdown(""" 
     Este tablero tiene el objetivo de facilitar el análisis y visualización de secuencias de nucleótidos como ADN y ARN. 
     Puedes ingresar un ID de GenBank para obtener la secuencia asociada y estudiar sus propiedades. Las secciones disponibles son:
     - **🔬 Frecuencia de codones**: Análisis de la frecuencia de codones en la secuencia de nucleótidos.
     - **📊 Distribución de bases nitrogenadas**: Analiza la distribución de las bases nitrogenadas A, T, C, G de la secuencia.
-    - **🌐 Visualización 3D de ADN**: Visualiza la secuencia de ADN en 3D.
-    - **🧬 Cantidad de proteínas codificadas, genes y cromosomas**: Muestra la cantidad de proteínas codificadas, genes y cromosomas, ilustrados.
+    - **🔬 Análisis de Motivos Conservados**: Análisis de secuencias de ADN conservadas en todo el genoma.
+    - **🔬 Cálculo de Enriquecimiento de GC**: Calcula y visualiza el contenido de GC a lo largo de la secuencia.
     """)
 
 # Frecuencia de codones
@@ -92,36 +92,11 @@ if sidebar_render == "Distribución de bases nitrogenadas":
                 fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
                 st.plotly_chart(fig)
 
-def fetch_genbank_record(genbank_id):
-    """
-    Esta función obtiene el registro de GenBank usando el ID proporcionado.
-    """
-    try:
-        handle = Entrez.efetch(db="nucleotide", id=genbank_id, rettype="gb", retmode="text")
-        record = SeqIO.read(handle, "genbank")
-        return record
-    except Exception as e:
-        st.error(f"Error al recuperar el ID de GenBank: {e}")
-        return None
+# 1. Análisis de Motivos Conservados
+if sidebar_render == "Análisis de Motivos Conservados":
+    st.title("🔬 Análisis de Motivos Conservados")
+    st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
 
-def fetch_genbank_record(genbank_id):
-    """
-    Esta función obtiene el registro de GenBank usando el ID proporcionado.
-    """
-    try:
-        handle = Entrez.efetch(db="nucleotide", id=genbank_id, rettype="gb", retmode="text")
-        record = SeqIO.read(handle, "genbank")
-        return record
-    except Exception as e:
-        st.error(f"Error al recuperar el ID de GenBank: {e}")
-        return None
-
-# 1. Análisis de Motivos Regulatorios en el ADN
-if sidebar_render == "Análisis de Motivos Regulatorios":
-    st.title("🔬 Análisis de Motivos Regulatorios en el ADN")
-    st.markdown("Introduce el ID de GenBank para analizar los motivos regulatorios en el ADN. 🌟")
-
-    # Entrada para el ID de GenBank
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
 
     if st.button("⚡ ¡Analizar!"):
@@ -130,37 +105,35 @@ if sidebar_render == "Análisis de Motivos Regulatorios":
         else:
             with st.spinner("Cargando información desde GenBank... 🕒"):
                 # Acceder al registro GenBank con Biopython
-                record = fetch_genbank_record(genbank_id)
+                record = get_sequence_from_genbank(genbank_id)
                 if record:
                     # Obtener la secuencia de ADN
                     sequence = record.seq
                     
-                    # Simulación de análisis de motivos regulatorios (esto es un ejemplo)
-                    # Supón que hemos identificado algunos motivos regulatorios
-                    regulatory_motifs = ['TATA', 'CAAT', 'GC-box']
-                    motif_positions = [i for i in range(len(sequence)) if sequence[i:i+4] in regulatory_motifs]
+                    # Supón que hemos identificado algunos motivos conservados
+                    conserved_motifs = ['ATG', 'TAA', 'GGT']
+                    motif_positions = [i for i in range(len(sequence)) if sequence[i:i+3] in conserved_motifs]
 
-                    # Visualización de los motivos regulatorios en un gráfico de barras
-                    st.markdown("**🔬 Posiciones de Motivos Regulatorios**")
+                    # Visualización de los motivos conservados en un gráfico de barras
+                    st.markdown("**🔬 Posiciones de Motivos Conservados**")
                     fig = go.Figure(data=[go.Bar(
                         x=list(range(len(motif_positions))),
                         y=[1]*len(motif_positions),  # Solo para ilustrar la presencia de los motivos
                         marker=dict(color='royalblue')
                     )])
                     fig.update_layout(
-                        title="Posiciones de Motivos Regulatorios en la Secuencia",
+                        title="Posiciones de Motivos Conservados en la Secuencia",
                         xaxis_title="Posición en la secuencia",
                         yaxis_title="Presencia de Motivo",
                         template="plotly_dark"
                     )
                     st.plotly_chart(fig)
 
-# 2. Análisis de SNPs (Polimorfismos de Nucleótido Único)
-if sidebar_render == "Análisis de SNPs":
-    st.title("🔬 Análisis de SNPs (Polimorfismos de Nucleótido Único)")
-    st.markdown("Introduce el ID de GenBank para analizar los SNPs en la secuencia de ADN. 🌟")
+# 2. Cálculo de Enriquecimiento de GC
+if sidebar_render == "Cálculo de Enriquecimiento de GC":
+    st.title("🔬 Cálculo de Enriquecimiento de GC")
+    st.markdown("Introduce el ID de GenBank para analizar el contenido de GC en la secuencia de ADN. 🌟")
 
-    # Entrada para el ID de GenBank
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
 
     if st.button("⚡ ¡Analizar!"):
@@ -169,27 +142,18 @@ if sidebar_render == "Análisis de SNPs":
         else:
             with st.spinner("Cargando información desde GenBank... 🕒"):
                 # Acceder al registro GenBank con Biopython
-                record = fetch_genbank_record(genbank_id)
+                record = get_sequence_from_genbank(genbank_id)
                 if record:
                     # Obtener la secuencia de ADN
                     sequence = record.seq
-                    
-                    # Simulación de análisis de SNPs (esto es un ejemplo)
-                    # Supón que hemos identificado algunos SNPs
-                    snps = [i for i in range(1, len(sequence)) if sequence[i] != sequence[i-1]]
 
-                    # Visualización de los SNPs en un gráfico interactivo
-                    st.markdown("**🔬 Posiciones de SNPs**")
-                    fig = go.Figure(data=[go.Scatter(
-                        x=snps,
-                        y=[1]*len(snps),  # Solo para ilustrar las posiciones de los SNPs
-                        mode='markers',
-                        marker=dict(color='red', size=10)
-                    )])
-                    fig.update_layout(
-                        title="Posiciones de SNPs en la Secuencia",
-                        xaxis_title="Posición en la secuencia",
-                        yaxis_title="SNP Detectado",
-                        template="plotly_dark"
-                    )
-                    st.plotly_chart(fig)
+                    # Calcular el contenido de GC
+                    gc_content = gc_fraction(sequence) * 100  # En porcentaje
+
+                    # Mostrar el gráfico del contenido de GC
+                    st.markdown("**🔬 Enriquecimiento de GC en la Secuencia**")
+                    fig, ax = plt.subplots()
+                    ax.plot(range(len(sequence)), [gc_fraction(sequence[i:i+100]) * 100 for i in range(len(sequence))])
+                    ax.set_title("Enriquecimiento de GC a lo largo de la secuencia")
+                    ax.set_xlabel("Posición en la secuencia")
+                    ax.set_ylabel("Contenido de GC (%)")
