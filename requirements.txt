@@ -1,8 +1,8 @@
 streamlit==1.14.0
-numpy==1.24.0
+numpy==1.21.4
 matplotlib==3.4.3
-biopython==1.79
 ipywidgets==7.6.5
+biopython==1.80
 py3Dmol
 pandas
 seaborn
