@@ -67,24 +67,35 @@ def graficar_distribucion():
     ax.legend([animal for animal in secuencias_adn], title='Animales')
     st.pyplot(fig)
 
-# Función para graficar un árbol filogenético
-def graficar_arbol_filogenetico():
-    # Crear una matriz de distancias de Hamming entre las secuencias
-    secuencias = list(secuencias_adn.values())
-    distancias = np.zeros((len(secuencias), len(secuencias)))
-    
-    for i in range(len(secuencias)):
-        for j in range(len(secuencias)):
-            distancias[i, j] = sum([1 for a, b in zip(secuencias[i], secuencias[j]) if a != b])
+# Función para graficar un análisis de la longitud de secuencias
+def graficar_longitud_secuencias():
+    longitudes = {animal: len(secuencia) for animal, secuencia in secuencias_adn.items()}
 
-    # Usar linkage de scipy para calcular la jerarquía
-    linked = linkage(distancias, method='average')
-    
-    # Graficar el dendrograma
-    fig, ax = plt.subplots(figsize=(10, 8))
-    dendrogram(linked, labels=list(secuencias_adn.keys()), orientation='top', distance_sort='descending', show_leaf_counts=True)
-    ax.set_title("Árbol Filogenético de Secuencias de ADN")
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.bar(longitudes.keys(), longitudes.values(), color='skyblue')
+    ax.set_xlabel('Animal')
+    ax.set_ylabel('Longitud de Secuencia (nucleótidos)')
+    ax.set_title('Longitud de Secuencias de ADN de Diferentes Animales')
     st.pyplot(fig)
+
+# Función para simular mutaciones aleatorias en las secuencias de ADN
+def graficar_mutaciones():
+    # Simulación de mutaciones: seleccionamos una base al azar y la mutamos
+    def mutar_secuencia(secuencia):
+        pos = np.random.randint(0, len(secuencia))  # Posición aleatoria en la secuencia
+        base_original = secuencia[pos]
+        bases = ['A', 'T', 'C', 'G']
+        bases.remove(base_original)  # Excluir la base original
+        nueva_base = np.random.choice(bases)  # Elegir una nueva base aleatoria
+        mutada = secuencia[:pos] + nueva_base + secuencia[pos+1:]
+        return mutada
+
+    secuencia_mutada = mutar_secuencia(secuencias_adn['Perro'])  # Ejemplo: mutar la secuencia del Perro
+
+    # Mostrar antes y después de la mutación
+    st.write(f"Secuencia Original del Perro: {secuencias_adn['Perro']}")
+    st.write(f"Secuencia Mutada: {secuencia_mutada}")
+    st.write("Se ha mutado un solo nucleótido aleatorio en la secuencia.")
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -103,7 +114,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Distribución de Secuencias', 'Árbol Filogenético']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Distribución de Secuencias', 'Longitud de Secuencias', 'Mutaciones Aleatorias']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -120,8 +131,11 @@ def main():
     elif ilustracion == 'Distribución de Secuencias':
         graficar_distribucion()
 
-    elif ilustracion == 'Árbol Filogenético':
-        graficar_arbol_filogenetico()
+    elif ilustracion == 'Longitud de Secuencias':
+        graficar_longitud_secuencias()
+
+    elif ilustracion == 'Mutaciones Aleatorias':
+        graficar_mutaciones()
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
