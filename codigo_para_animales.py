@@ -2,6 +2,12 @@
 
 import sys
 import streamlit as st
+
+# Añadir la ruta donde se encuentra 'secuencias_adn.py' al sys.path
+# Asegúrate de reemplazar '/ruta/al/directorio' con la ruta correcta.
+sys.path.append('/ruta/al/directorio')  # Asegúrate de que esta ruta es correcta
+
+# Ahora puedes importar el archivo 'secuencias_adn' correctamente
 from secuencias_adn import secuencias_adn
 
 # Importar las funciones necesarias
