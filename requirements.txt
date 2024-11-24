@@ -7,3 +7,6 @@ seaborn
 scipy
 numpy
 plotly
+matplotlib.pyplot
+mpl_toolkits.mplot3d
+collections.Counter
