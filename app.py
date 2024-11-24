@@ -3,13 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from collections import Counter
-import seaborn as sns
-import random
 import re
 from Bio import Entrez
 from Bio import SeqIO
-from Bio import Phylo
-import nglview as nv
 
 # Configuración de Entrez: Debes proporcionar tu correo para cumplir con los requisitos de GenBank
 Entrez.email = "a223201128@unison.mx"  # Sustituye con tu correo electrónico
@@ -21,10 +17,10 @@ def obtener_secuencia_genbank(accession_number):
         handle = Entrez.efetch(db="nucleotide", id=accession_number, rettype="gb", retmode="text")
         record = SeqIO.read(handle, "genbank")  # Lee el archivo de GenBank
         secuencia_adn = str(record.seq)  # Convierte la secuencia en cadena
-        return secuencia_adn, record
+        return secuencia_adn
     except Exception as e:
         st.error(f"Error al obtener la secuencia de GenBank: {e}")
-        return None, None
+        return None
 
 # Función para calcular las proporciones de nucleótidos (A, T, C, G)
 def calcular_proporcion_nucleotidos(secuencia):
@@ -50,33 +46,37 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para generar un árbol filogenético de secuencias de ADN
-def generar_arbol_filogenetico(secuencias):
-    # Cargar las secuencias de ADN y construir un árbol filogenético
-    from Bio.Align import MultipleSeqAlignment
-    from Bio.Align.Applications import ClustalwCommandline
+# Función para analizar secuencias de replicación (orígenes de replicación)
+def analizar_replicacion(secuencia):
+    # Detectamos secuencias comunes en orígenes de replicación, como la secuencia "ATG" o similares
+    secuencias_replicacion = re.findall(r'ATG[AGCT]{5,10}ATG', secuencia)  # Secuencias con características de replicación
+    return secuencias_replicacion
 
-    # Crear un alineamiento ficticio de ejemplo con las secuencias proporcionadas
-    alignment = MultipleSeqAlignment([SeqIO.read(seq, "genbank") for seq in secuencias])
+# Función para generar la hélice de ADN en 3D usando Plotly
+def mostrar_helice_3d():
+    # Ejemplo simple de la hélice de ADN utilizando coordenadas 3D
+    phi = np.linspace(0, 2 * np.pi, 100)
+    z = np.linspace(-5, 5, 100)
+    x = np.sin(phi) * np.exp(0.1 * z)
+    y = np.cos(phi) * np.exp(0.1 * z)
 
-    # Usar ClustalW para generar un árbol filogenético
-    clustalw_cline = ClustalwCommandline("clustalw2", infile="alignment.aln")
-    clustalw_cline()
-
-    # Leer el archivo de salida y graficar el árbol filogenético
-    tree = Phylo.read("tree.dnd", "newick")
-    Phylo.draw(tree)
-    st.pyplot()
-
-# Función para mostrar la estructura 3D de la hélice de ADN
-def mostrar_helice_3d(secuencia):
-    # Visualización 3D de la hélice de ADN usando nglview
-    estructura = f'PDB_file_{random.randint(1, 10000)}.pdb'  # Generamos un archivo temporal para la hélice
-    # Aquí deberías usar una estructura de ADN en formato PDB, por ahora usaremos un nombre genérico
-
-    # Muestra la estructura 3D
-    view = nv.show_file(estructura)  # Asume que tienes un archivo PDB para la hélice
-    view
+    # Crear la figura 3D con Plotly
+    fig = go.Figure(data=[go.Scatter3d(
+        x=x, y=y, z=z,
+        mode='lines',
+        line=dict(color='blue', width=4)
+    )])
+    
+    fig.update_layout(
+        title="Estructura 3D de la Hélice de ADN",
+        scene=dict(
+            xaxis_title='X',
+            yaxis_title='Y',
+            zaxis_title='Z'
+        )
+    )
+    
+    st.plotly_chart(fig)
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -87,7 +87,7 @@ def main():
     
     if accession_number:
         # Obtener la secuencia de ADN desde GenBank
-        secuencia_adn, record = obtener_secuencia_genbank(accession_number)
+        secuencia_adn = obtener_secuencia_genbank(accession_number)
         
         if secuencia_adn:
             st.write(f"Secuencia de ADN obtenida de GenBank (Accession Number: {accession_number}):")
@@ -96,7 +96,7 @@ def main():
             # Opciones de ilustración
             ilustracion = st.selectbox(
                 "Selecciona la ilustración para la secuencia de ADN:",
-                ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Árbol Filogenético', 'Estructura 3D de la Hélice']
+                ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Hélice 3D de ADN']
             )
             
             # Actualizar visualización según la opción seleccionada
@@ -110,16 +110,21 @@ def main():
             elif ilustracion == 'Frecuencia de Codones':
                 graficar_codones_interactivo(secuencia_adn)
 
-            elif ilustracion == 'Árbol Filogenético':
-                # Asegúrate de tener las secuencias necesarias para el árbol filogenético
-                secuencias = [secuencia_adn]  # Aquí debes añadir más secuencias si las tienes
-                generar_arbol_filogenetico(secuencias)
+            elif ilustracion == 'Secuencias de Replicación':
+                secuencias_replicacion = analizar_replicacion(secuencia_adn)
+                if secuencias_replicacion:
+                    st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
+                    st.write(secuencias_replicacion)
+                else:
+                    st.write("No se encontraron secuencias de replicación en la secuencia.")
 
-            elif ilustracion == 'Estructura 3D de la Hélice':
-                mostrar_helice_3d(secuencia_adn)
+            elif ilustracion == 'Hélice 3D de ADN':
+                mostrar_helice_3d()
+                
         else:
             st.write("No se pudo obtener la secuencia. Verifica el número de acceso.")
     
 # Ejecutar la aplicación
 if __name__ == "__main__":
     main()
+
