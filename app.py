@@ -4,7 +4,7 @@ from Bio import SeqIO
 import matplotlib.pyplot as plt
 
 # Configuración de Entrez
-Entrez.email = "tu_email@example.com"  # Asegúrate de poner tu correo electrónico
+Entrez.email = "a223201128@unison.mx"  # Asegúrate de poner tu correo electrónico
 
 # Función para obtener la secuencia de ADN desde GenBank usando un Accession ID
 def fetch_dna_from_genbank(accession_id):
