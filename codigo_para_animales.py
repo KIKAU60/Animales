@@ -1,108 +1,54 @@
+import random
 import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from collections import Counter
 
-# Secuencias de ADN de animales (solo ejemplos, las secuencias pueden ser ficticias)
-secuencias_adn = {
-    "Elefante": "AGCTGACGTAGCGTACGTAAGCTGACTGA",
-    "Perro": "ATCGAGCTGGTAGCGGATCGAAGTCTAGG",
-    "Gato": "AAGGCTAGCTAGGTACGTCGAAGTCGAGT",
-    "Caballo": "AGGTCGACGTTGAGTCTGAGTGAGTCGA",
-    "León": "ATGCGATCGTACGAGTGTAGCTAGCGTA",
-    "Tigre": "CTGAGTGAGTCGATAGCGATGCAGTCAG",
-    "Delfín": "AGTCTGATCGGAGTCTACGAGAGTCTGA",
-    "Ballena": "ACGTGAGTACGAGTGTACGTAGTGACTG",
-    "Cebra": "ATGAGTCTAGGATCGAGTACGAGGTCTGA",
-    "Rinoceronte": "AGTCGTAGGCTAGCTGACGTAGCGTAGC"
-}
+# Función para generar una secuencia de ADN de longitud n
+def generar_adn(longitud=100):
+    secuencia = ''.join(random.choices('ACGT', k=longitud))
+    return secuencia
 
-# Función para calcular las proporciones de nucleótidos (A, T, C, G)
-def calcular_proporcion_nucleotidos(secuencia):
-    counter = Counter(secuencia)
-    total = len(secuencia)
-    proporciones = [counter['A'] / total, counter['T'] / total, counter['C'] / total, counter['G'] / total]
-    return proporciones
+# Definir los 4 indicadores, que son secuencias características
+indicadores = ["ATGC", "CGTA", "TGCATG", "GCGT"]
 
-# Función para graficar la frecuencia de codones (tripletas)
-def graficar_codones(secuencia):
-    codones = [secuencia[i:i+3] for i in range(0, len(secuencia), 3)]
-    counter = Counter(codones)
-    codones_unicos = list(counter.keys())
-    frecuencias = list(counter.values())
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(codones_unicos, frecuencias, color='skyblue')
-    plt.xticks(rotation=90)
-    plt.xlabel('Codón')
-    plt.ylabel('Frecuencia')
-    plt.title('Frecuencia de Codones en la Secuencia')
-    st.pyplot()
-
-# Función para ilustrar la estructura de la doble hélice (gráfico 3D simple)
-def ilustrar_doble_helice(secuencia):
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
+# Generar 10 secuencias de ADN con 4 indicadores en cada una
+def generar_secuencias_con_indicadores(num_secuencias=10, longitud=100):
+    secuencias = []
+    for _ in range(num_secuencias):
+        secuencia = generar_adn(longitud)
+        
+        # Inserta aleatoriamente los 4 indicadores en diferentes posiciones
+        for indicador in indicadores:
+            posicion = random.randint(0, longitud - len(indicador))
+            secuencia = secuencia[:posicion] + indicador + secuencia[posicion + len(indicador):]
+        
+        secuencias.append(secuencia)
     
-    # Simulación de puntos en 3D (esto es solo una representación visual)
-    x = np.random.rand(10)
-    y = np.random.rand(10)
-    z = np.random.rand(10)
-    
-    ax.plot(x, y, z, label="Estructura de la Doble Hélice")
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title("Estructura de la Doble Hélice de ADN")
-    ax.legend()
-    st.pyplot(fig)
+    return secuencias
 
-# Función para mostrar la secuencia de ADN como texto
-def representar_secuencia(secuencia):
-    plt.figure(figsize=(10, 2))
-    plt.text(0.5, 0.5, secuencia, fontsize=12, ha='center', va='center')
-    plt.title("Representación de la Secuencia de ADN")
-    plt.axis('off')
-    st.pyplot()
+# Función para mostrar el ADN con los indicadores
+def mostrar_secuencias(secuencias):
+    for idx, secuencia in enumerate(secuencias, 1):
+        st.subheader(f"Secuencia {idx}: {secuencia}")
+        st.write("Indicadores en la secuencia:")
+        
+        for indicador in indicadores:
+            if indicador in secuencia:
+                st.write(f"  - {indicador} encontrado.")
+        
+        st.markdown("---")  # Línea separadora
 
-# Función principal para la aplicación Streamlit
-def main():
-    st.title("Análisis de Secuencias de ADN de Animales")
-    
-    # Selección de un animal
-    animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
-    
-    # Obtener la secuencia de ADN del animal seleccionado
-    secuencia_adn = secuencias_adn[animal]
-    
-    # Mostrar la secuencia seleccionada
-    st.write(f"Secuencia de ADN del {animal}:")
-    st.text(secuencia_adn)
-    
-    # Opciones de ilustración
-    ilustracion = st.selectbox(
-        "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Estructura de Doble Hélice', 'Representación de la Secuencia']
-    )
-    
-    # Actualizar visualización según la opción seleccionada
-    if ilustracion == 'Proporciones de Nucleótidos':
-        proporciones = calcular_proporcion_nucleotidos(secuencia_adn)
-        plt.figure(figsize=(8, 8))
-        plt.pie(proporciones, labels=['A', 'T', 'C', 'G'], autopct='%1.1f%%', startangle=140)
-        plt.title("Proporción de Nucleótidos en la Secuencia de ADN")
-        st.pyplot()
+# Título y Descripción de la App
+st.title("Generador de Secuencias de ADN con Indicadores")
+st.write("""
+    Esta aplicación genera secuencias aleatorias de ADN con indicadores específicos en ellas. 
+    Los indicadores son secuencias cortas de ADN que se insertan de manera aleatoria.
+""")
 
-    elif ilustracion == 'Frecuencia de Codones':
-        graficar_codones(secuencia_adn)
+# Parámetros para generar las secuencias
+longitud_adn = st.slider("Longitud de las secuencias de ADN", min_value=50, max_value=200, value=100)
+num_secuencias = st.slider("Número de secuencias a generar", min_value=1, max_value=20, value=10)
 
-    elif ilustracion == 'Estructura de Doble Hélice':
-        ilustrar_doble_helice(secuencia_adn)
+# Botón para generar las secuencias
+if st.button("Generar Secuencias"):
+    secuencias_con_indicadores = generar_secuencias_con_indicadores(num_secuencias=num_secuencias, longitud=longitud_adn)
+    mostrar_secuencias(secuencias_con_indicadores)
 
-    elif ilustracion == 'Representación de la Secuencia':
-        representar_secuencia(secuencia_adn)
-
-# Ejecutar la aplicación
-if __name__ == "__main__":
-    main()
