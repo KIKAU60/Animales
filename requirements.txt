@@ -9,3 +9,6 @@ ipywidgets
 biopython
 py3Dmol
 pandas
+stmol
+ipython-genutils
+requests
