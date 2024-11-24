@@ -9,6 +9,3 @@ ipywidgets
 biopython
 py3Dmol
 pandas
-Streamlit-Elements
-Streamlit-Ag-Grid
-Streamlit-Components
