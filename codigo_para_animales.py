@@ -9,7 +9,7 @@ import re
 
 # Secuencias de ADN de animales
 secuencias_adn = {
-    "Elefante": "ATGAGCTGAGAGTCCAGGCGTCGAGGGAGGCGTAGAGGAAGGCGAGT",
+    "Elefante": "AGCTGACGTAGCGTACGTAAGCTGACTGA",
     "Perro": "ATCGAGCTGGTAGCGGATCGAAGTCTAGG",
     "Gato": "AAGGCTAGCTAGGTACGTCGAAGTCGAGT",
     "Caballo": "AGGTCGACGTTGAGTCTGAGTGAGTCGA",
@@ -45,40 +45,17 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para analizar enlaces hidrófobos
-def analizar_enlaces_hidrofobos(secuencia):
-    # Definir regiones hidrófobas como aquellas que contienen "A", "V", "I", "L", "M", "F", "W", "Y"
-    regiones_hidrofobas = re.findall(r'[AVILMFYW]{3,}', secuencia)
-    return regiones_hidrofobas
+# Función para analizar secuencias de replicación (orígenes de replicación)
+def analizar_replicacion(secuencia):
+    # Detectamos secuencias comunes en orígenes de replicación, como la secuencia "ATG" o similares
+    secuencias_replicacion = re.findall(r'ATG[AGCT]{5,10}ATG', secuencia)  # Secuencias con características de replicación
+    return secuencias_replicacion
 
-# Función para analizar la longitud de las secuencias
-def analizar_longitud_secuencias():
-    longitudes = [len(secuencia) for secuencia in secuencias_adn.values()]
-    promedio_longitud = np.mean(longitudes)
-    desviacion_longitud = np.std(longitudes)
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.hist(longitudes, bins=10, color='skyblue', edgecolor='black')
-    ax.axvline(promedio_longitud, color='red', linestyle='dashed', linewidth=1)
-    ax.axvline(promedio_longitud + desviacion_longitud, color='green', linestyle='dashed', linewidth=1)
-    ax.axvline(promedio_longitud - desviacion_longitud, color='green', linestyle='dashed', linewidth=1)
-    ax.set_title("Distribución de Longitudes de Secuencias de ADN")
-    ax.set_xlabel("Longitud de la Secuencia")
-    ax.set_ylabel("Frecuencia")
-    st.pyplot(fig)
-
-# Función para simular mutaciones genéticas
-def simular_mutaciones(secuencia, num_mutaciones=5):
-    secuencia_mutada = list(secuencia)
-    posiciones = random.sample(range(len(secuencia)), num_mutaciones)
-    nucleotidos = ['A', 'T', 'C', 'G']
-    
-    for pos in posiciones:
-        nucleotido_original = secuencia[pos]
-        nuevo_nucleotido = random.choice([n for n in nucleotidos if n != nucleotido_original])
-        secuencia_mutada[pos] = nuevo_nucleotido
-    
-    return ''.join(secuencia_mutada)
+# Función para detectar secuencias de regulación
+def detectar_secuencias_reguladoras(secuencia):
+    # Supongamos que los promotores y elementos potenciadores tienen secuencias específicas
+    secuencias_reguladoras = re.findall(r'TATAAA|CAAT|GC-box', secuencia)
+    return secuencias_reguladoras
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -97,7 +74,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Análisis de Enlaces Hidrófobos', 'Longitud de Secuencias', 'Simulación de Mutaciones']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Secuencias de Regulación']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -111,23 +88,21 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Análisis de Enlaces Hidrófobos':
-        enlaces_hidrofobos = analizar_enlaces_hidrofobos(secuencia_adn)
-        if enlaces_hidrofobos:
-            st.write("Se han encontrado las siguientes regiones hidrófobas:")
-            st.write(enlaces_hidrofobos)
+    elif ilustracion == 'Secuencias de Replicación':
+        secuencias_replicacion = analizar_replicacion(secuencia_adn)
+        if secuencias_replicacion:
+            st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
+            st.write(secuencias_replicacion)
         else:
-            st.write("No se encontraron regiones hidrófobas en la secuencia.")
+            st.write("No se encontraron secuencias de replicación en la secuencia.")
 
-    elif ilustracion == 'Longitud de Secuencias':
-        analizar_longitud_secuencias()
-
-    elif ilustracion == 'Simulación de Mutaciones':
-        secuencia_mutada = simular_mutaciones(secuencia_adn)
-        st.write("Secuencia Original:")
-        st.text(secuencia_adn)
-        st.write("Secuencia Tras Mutaciones Aleatorias:")
-        st.text(secuencia_mutada)
+    elif ilustracion == 'Secuencias de Regulación':
+        secuencias_reguladoras = detectar_secuencias_reguladoras(secuencia_adn)
+        if secuencias_reguladoras:
+            st.write("Se han encontrado las siguientes secuencias reguladoras:")
+            st.write(secuencias_reguladoras)
+        else:
+            st.write("No se encontraron secuencias reguladoras en la secuencia.")
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
