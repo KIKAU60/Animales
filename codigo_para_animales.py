@@ -1,11 +1,8 @@
-# codigo_para_animales.py
-
 import sys
 import streamlit as st
 
-# Añadir la ruta donde se encuentra 'secuencias_adn.py' al sys.path
-# Asegúrate de reemplazar '/ruta/al/directorio' con la ruta correcta.
-sys.path.append('/ruta/al/directorio')  # Asegúrate de que esta ruta es correcta
+# Añadir la ruta al directorio donde se encuentra 'secuencias_adn.py'
+sys.path.append('/ruta/donde/esta/secuencias_adn')
 
 # Ahora puedes importar el archivo 'secuencias_adn' correctamente
 from secuencias_adn import secuencias_adn
