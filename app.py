@@ -81,8 +81,23 @@ def mostrar_helice_3d():
 
 # Función principal para la aplicación Streamlit
 def main():
-    st.title("Análisis de Secuencias de ADN desde GenBank")
+    # Mostrar índice
+    st.sidebar.title("Índice")
+    st.sidebar.markdown("""
+    1. **Importación de Librerías**  
+    2. **Configuración Inicial de Entrez**  
+    3. **Funciones del Código**  
+        - `obtener_secuencia_genbank(accession_number)`: Obtiene la secuencia de ADN desde GenBank.  
+        - `calcular_proporcion_nucleotidos(secuencia)`: Calcula las proporciones de nucleótidos en la secuencia de ADN.  
+        - `graficar_codones_interactivo(secuencia)`: Grafica la frecuencia de codones usando Plotly.  
+        - `analizar_replicacion(secuencia)`: Detecta secuencias de replicación en la secuencia de ADN.  
+        - `mostrar_helice_3d()`: Genera una visualización 3D de la hélice de ADN.  
+    4. **Función Principal: `main()`**  
+        - Proporciona una interfaz de usuario para interactuar con la secuencia de ADN y visualizar diferentes gráficos e información.  
+    """)
 
+    st.title("Análisis de Secuencias de ADN desde GenBank")
+    
     # Entrada para el número de acceso de GenBank (Accession Number)
     accession_number = st.text_input("Introduce el número de acceso de GenBank (Ej. NM_001003222):")
     
