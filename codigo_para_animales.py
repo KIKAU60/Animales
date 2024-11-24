@@ -5,8 +5,7 @@ import plotly.graph_objects as go
 from collections import Counter
 import seaborn as sns
 from io import StringIO
-from sklearn.metrics import pairwise_distances
-from scipy.cluster.hierarchy import dendrogram, linkage
+import random
 import re
 
 # Secuencias de ADN de animales
@@ -47,28 +46,37 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para buscar palíndromos en la secuencia de ADN
-def buscar_palindromos(secuencia):
-    # Definir el patrón de palíndromos (secuencias que se leen igual de izquierda a derecha que de derecha a izquierda)
-    palindromos = []
-    for i in range(len(secuencia)):
-        for j in range(i+4, len(secuencia)+1):  # Palíndromos de longitud mínima 4
-            sub_secuencia = secuencia[i:j]
-            if sub_secuencia == sub_secuencia[::-1]:  # Verifica si es un palíndromo
-                palindromos.append(sub_secuencia)
-    return palindromos
+# Función para analizar secuencias conservadas entre diferentes animales
+def buscar_secuencias_conservadas():
+    secuencias = list(secuencias_adn.values())
+    secuencias_conservadas = []
 
-# Función para replicar una secuencia de ADN (simulación)
-def replicar_secuencia(secuencia):
-    # Simula la replicación de ADN: simplemente se duplica la secuencia
-    return secuencia + secuencia
+    # Buscar subsecuencias comunes entre todas las secuencias
+    min_longitud = min(len(seq) for seq in secuencias)
+    for i in range(min_longitud - 2):
+        subsecuencia = secuencias[0][i:i+3]  # Usamos subsecuencias de longitud 3
+        if all(subsecuencia in seq for seq in secuencias):
+            secuencias_conservadas.append(subsecuencia)
+    
+    return secuencias_conservadas
 
-# Función para detectar motivos de unión de proteínas
-def detectar_motivos_union(secuencia):
-    # Buscar patrones comunes en la secuencia que podrían ser sitios de unión de proteínas (ejemplo simple)
-    # Por ejemplo, buscamos secuencias de 6 bases (que podrían representar motivos de unión)
-    patrones = re.findall(r'(?=(ATG[A-Z]{3}G))', secuencia)  # Simple búsqueda de patrones
-    return patrones
+# Función para identificar marcos de lectura abiertos (ORFs)
+def identificar_orfs(secuencia):
+    orfs = []
+    for i in range(len(secuencia) - 3):
+        if secuencia[i:i+3] == "ATG":  # Iniciar un ORF (codón de inicio)
+            for j in range(i+3, len(secuencia)-3, 3):
+                if secuencia[j:j+3] == "TAA" or secuencia[j:j+3] == "TAG" or secuencia[j:j+3] == "TGA":  # Codones de parada
+                    orfs.append(secuencia[i:j+3])
+                    break
+    return orfs
+
+# Función para simular la duplicación de ADN a lo largo del tiempo
+def duplicacion_adn(secuencia, ciclos=5):
+    secuencia_duplicada = secuencia
+    for _ in range(ciclos):
+        secuencia_duplicada += secuencia
+    return secuencia_duplicada
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -87,7 +95,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Palíndromos en ADN', 'Replicación de Secuencia', 'Motivos de Unión de Proteínas']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias Conservadas', 'Identificación de ORFs', 'Duplicación de Secuencia']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -101,28 +109,28 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Palíndromos en ADN':
-        palindromos = buscar_palindromos(secuencia_adn)
-        if palindromos:
-            st.write("Se han encontrado los siguientes palíndromos en la secuencia:")
-            st.write(palindromos)
+    elif ilustracion == 'Secuencias Conservadas':
+        secuencias_conservadas = buscar_secuencias_conservadas()
+        if secuencias_conservadas:
+            st.write("Las siguientes secuencias están conservadas en todas las especies:")
+            st.write(secuencias_conservadas)
         else:
-            st.write("No se han encontrado palíndromos en la secuencia.")
+            st.write("No se encontraron secuencias conservadas en todas las especies.")
 
-    elif ilustracion == 'Replicación de Secuencia':
-        secuencia_replicada = replicar_secuencia(secuencia_adn)
+    elif ilustracion == 'Identificación de ORFs':
+        orfs = identificar_orfs(secuencia_adn)
+        if orfs:
+            st.write("Se han identificado los siguientes marcos de lectura abiertos (ORFs):")
+            st.write(orfs)
+        else:
+            st.write("No se identificaron ORFs en la secuencia.")
+
+    elif ilustracion == 'Duplicación de Secuencia':
+        secuencia_duplicada = duplicacion_adn(secuencia_adn)
         st.write("Secuencia Original:")
         st.text(secuencia_adn)
-        st.write("Secuencia Replicada (duplicada):")
-        st.text(secuencia_replicada)
-
-    elif ilustracion == 'Motivos de Unión de Proteínas':
-        motivos = detectar_motivos_union(secuencia_adn)
-        if motivos:
-            st.write("Se han encontrado los siguientes motivos de unión de proteínas:")
-            st.write(motivos)
-        else:
-            st.write("No se han encontrado motivos de unión de proteínas en la secuencia.")
+        st.write("Secuencia Duplicada (tras varias copias):")
+        st.text(secuencia_duplicada)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
