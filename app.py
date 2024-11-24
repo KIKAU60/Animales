@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import seaborn as sns
 from collections import Counter
 import re
 from Bio import Entrez
@@ -38,12 +39,18 @@ def graficar_codones_interactivo(secuencia):
     frecuencias = list(counter.values())
 
     # Gráfico interactivo usando Plotly
-    fig = go.Figure([go.Bar(x=codones_unicos, y=frecuencias, marker_color='skyblue')])
+    fig = go.Figure([go.Bar(
+        x=codones_unicos, 
+        y=frecuencias, 
+        marker_color='skyblue',
+        hovertemplate="Codón: %{x}<br>Frecuencia: %{y}<extra></extra>"
+    )])
     fig.update_layout(
         title="Frecuencia de Codones en la Secuencia de ADN",
         xaxis_title="Codón",
         yaxis_title="Frecuencia",
-        xaxis_tickangle=-45
+        xaxis_tickangle=-45,
+        template="plotly_dark",  # Cambiar el tema del gráfico
     )
     st.plotly_chart(fig)
 
@@ -74,7 +81,8 @@ def mostrar_helice_3d():
             xaxis_title='X',
             yaxis_title='Y',
             zaxis_title='Z'
-        )
+        ),
+        template="plotly_dark",  # Tema de visualización oscura
     )
     
     st.plotly_chart(fig)
@@ -132,10 +140,19 @@ def main():
             """)
             if accession_number:
                 proporciones = calcular_proporcion_nucleotidos(secuencia_adn)
-                fig, ax = plt.subplots(figsize=(8, 8))
-                ax.pie(proporciones, labels=['A', 'T', 'C', 'G'], autopct='%1.1f%%', startangle=140)
-                ax.set_title("Proporción de Nucleótidos en la Secuencia de ADN")
-                st.pyplot(fig)
+                # Usamos Plotly para un gráfico interactivo
+                fig = go.Figure([go.Pie(
+                    labels=['A', 'T', 'C', 'G'],
+                    values=proporciones,
+                    hole=0.3,
+                    hoverinfo="label+percent+value",
+                    marker=dict(colors=['#FF6347', '#FFD700', '#32CD32', '#4682B4'])
+                )])
+                fig.update_layout(
+                    title="Proporción de Nucleótidos en la Secuencia de ADN",
+                    template="plotly_dark",  # Tema de visualización oscura
+                )
+                st.plotly_chart(fig)
 
         elif ilustracion == 'Frecuencia de Codones':
             st.markdown("### Frecuencia de Codones")
@@ -146,26 +163,4 @@ def main():
             if accession_number:
                 graficar_codones_interactivo(secuencia_adn)
 
-        elif ilustracion == 'Secuencias de Replicación':
-            st.markdown("### Secuencias de Replicación")
-            st.write("""
-                Aquí se detectan posibles secuencias que puedan indicar orígenes de replicación en la secuencia de ADN.
-            """)
-            if accession_number:
-                secuencias_replicacion = analizar_replicacion(secuencia_adn)
-                if secuencias_replicacion:
-                    st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
-                    st.write(secuencias_replicacion)
-                else:
-                    st.write("No se encontraron secuencias de replicación en la secuencia.")
-
-        elif ilustracion == 'Hélice 3D de ADN':
-            st.markdown("### Hélice 3D de ADN")
-            st.write("""
-                Esta visualización genera una representación 3D de la hélice de ADN utilizando coordenadas 3D.
-            """)
-            mostrar_helice_3d()
-
-# Ejecutar la aplicación
-if __name__ == "__main__":
-    main()
+       
