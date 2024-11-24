@@ -92,15 +92,6 @@ if sidebar_render == "Distribución de bases nitrogenadas":
                 fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
                 st.plotly_chart(fig)
 
-import streamlit as st
-from Bio import Entrez, SeqIO
-import py3Dmol
-import plotly.graph_objects as go
-
-# Configura tu correo para usar Entrez
-Entrez.email = "a223201128@unison.mx"  # Reemplaza con tu correo
-
-# Función para obtener el registro de GenBank
 def fetch_genbank_record(genbank_id):
     """
     Esta función obtiene el registro de GenBank usando el ID proporcionado.
@@ -113,29 +104,10 @@ def fetch_genbank_record(genbank_id):
         st.error(f"Error al recuperar el ID de GenBank: {e}")
         return None
 
-# Función para visualizar ADN en 3D
-def visualize_3D_dna(sequence):
-    """
-    Visualiza la secuencia de ADN en 3D usando py3Dmol.
-    """
-    viewer = py3Dmol.view(width=800, height=600)
-    
-    # Convertir la secuencia de ADN en un formato adecuado para 3Dmol
-    viewer.addModel(sequence, "pdb")
-    
-    # Estilo de visualización para mejorar la experiencia
-    viewer.setStyle({'stick': {}})
-    viewer.setBackgroundColor('white')
-    viewer.zoomTo()
-    viewer.setStyle({'cartoon': {'color': 'spectrum'}})  # Colores espectrales
-    viewer.addStyle({'model': -1}, {'sphere': {'radius': 0.4}})  # Esferas para mejorar visibilidad
-    
-    viewer.show()
-
-# Cantidad de proteínas codificadas, genes y cromosomas
-if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
-    st.title("🔬 Cantidad de Proteínas Codificadas, Genes y Cromosomas")
-    st.markdown("Introduce el ID de GenBank para analizar la cantidad de proteínas codificadas, genes y cromosomas. 🌟")
+# 1. Análisis de Motivos Conservados
+if sidebar_render == "Análisis de Motivos Conservados":
+    st.title("🔬 Análisis de Motivos Conservados")
+    st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
 
     # Entrada para el ID de GenBank
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
@@ -148,47 +120,63 @@ if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
                 # Acceder al registro GenBank con Biopython
                 record = fetch_genbank_record(genbank_id)
                 if record:
-                    # Visualización 3D del ADN (si el genoma tiene una estructura adecuada)
-                    st.markdown("**🔬 Visualización 3D del ADN**")
-                    visualize_3D_dna(record.seq)
+                    # Obtener la secuencia de ADN
+                    sequence = record.seq
                     
-                    # Mostrar la cantidad de proteínas codificadas
-                    cds_count = sum(1 for feature in record.features if feature.type == "CDS")
-                    st.markdown(f"**🔬 Proteínas codificadas (CDS):** `{cds_count}`")
-                    
-                    # Mostrar la cantidad de genes
-                    genes_count = sum(1 for feature in record.features if feature.type == "gene")
-                    st.markdown(f"**🌿 Cantidad de genes:** `{genes_count}`")
-                    
-                    # Mostrar la cantidad de cromosomas
-                    chromosomes_count = len([f for f in record.features if f.type == "chromosome"])
-                    st.markdown(f"**🔬 Cantidad de cromosomas:** `{chromosomes_count}`")
-                    
-                    # Gráfico de barras para la cantidad de CDS, Genes y Cromosomas
-                    categories = ['Proteínas Codificadas', 'Genes', 'Cromosomas']
-                    counts = [cds_count, genes_count, chromosomes_count]
-                    
+                    # Simulación de análisis de motivos conservados (esto es un ejemplo)
+                    # Supón que hemos identificado algunos motivos conservados
+                    conserved_motifs = ['ATG', 'TAA', 'GGT']
+                    motif_positions = [i for i in range(len(sequence)) if sequence[i:i+3] in conserved_motifs]
+
+                    # Visualización de los motivos conservados en un gráfico de barras
+                    st.markdown("**🔬 Posiciones de Motivos Conservados**")
                     fig = go.Figure(data=[go.Bar(
-                        x=categories,
-                        y=counts,
-                        marker=dict(color=['#ff6347', '#8a2be2', '#20b2aa']),
+                        x=list(range(len(motif_positions))),
+                        y=[1]*len(motif_positions),  # Solo para ilustrar la presencia de los motivos
+                        marker=dict(color='royalblue')
                     )])
                     fig.update_layout(
-                        title="Cantidad de Proteínas Codificadas, Genes y Cromosomas",
-                        xaxis_title="Categoría",
-                        yaxis_title="Cantidad",
+                        title="Posiciones de Motivos Conservados en la Secuencia",
+                        xaxis_title="Posición en la secuencia",
+                        yaxis_title="Presencia de Motivo",
                         template="plotly_dark"
                     )
                     st.plotly_chart(fig)
 
-                    # Imágenes ilustrativas (opcional)
-                    st.image("proteins_coding.png", caption="Proteínas Codificadas", use_column_width=True)
-                    st.image("genes_count.png", caption="Cantidad de Genes", use_column_width=True)
-                    st.image("chromosomes_count.png", caption="Cantidad de Cromosomas", use_column_width=True)
+# 2. Cálculo de Enriquecimiento de GC
+if sidebar_render == "Cálculo de Enriquecimiento de GC":
+    st.title("🔬 Cálculo de Enriquecimiento de GC")
+    st.markdown("Introduce el ID de GenBank para analizar el contenido de GC en la secuencia de ADN. 🌟")
 
-# Información adicional o conclusiones
+    # Entrada para el ID de GenBank
+    genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
+
+    if st.button("⚡ ¡Analizar!"):
+        if not genbank_id:
+            st.error("Por favor, ingresa un ID de GenBank válido.")
+        else:
+            with st.spinner("Cargando información desde GenBank... 🕒"):
+                # Acceder al registro GenBank con Biopython
+                record = fetch_genbank_record(genbank_id)
+                if record:
+                    # Obtener la secuencia de ADN
+                    sequence = record.seq
+
+                    # Calcular el contenido de GC
+                    gc_content = gc_fraction(sequence) * 100  # En porcentaje
+
+                    # Mostrar el gráfico del contenido de GC
+                    st.markdown("**🔬 Enriquecimiento de GC en la Secuencia**")
+                    fig, ax = plt.subplots()
+                    ax.plot(range(len(sequence)), [gc_fraction(sequence[i:i+100]) * 100 for i in range(len(sequence))])
+                    ax.set_title("Enriquecimiento de GC a lo largo de la secuencia")
+                    ax.set_xlabel("Posición en la secuencia")
+                    ax.set_ylabel("Contenido de GC (%)")
+                    st.pyplot(fig)
+
+# Información adicional
 if sidebar_render != "Inicio":
     st.sidebar.markdown("""
-    Para obtener más detalles sobre cómo interpretar los resultados o cómo funciona el análisis de secuencias de GenBank, consulta la documentación de Biopython o el sitio web oficial de GenBank.
-    Si deseas realizar otro análisis, simplemente elige una de las opciones en el menú lateral.
+    Estos análisis proporcionan una vista más profunda de la secuencia de ADN, explorando desde motivos conservados hasta el contenido de GC.
+    Puedes realizar más análisis seleccionando diferentes opciones desde el menú lateral.
     """)
