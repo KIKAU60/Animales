@@ -63,6 +63,17 @@ if sidebar_render == "Frecuencia de codones":
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
+    # Sugerir ejemplos si no se ingresa un ID o si se ingresa uno incorrecto
+    if not genbank_id:
+        st.markdown("""
+            **Ejemplos de IDs de GenBank**:
+            - `NM_001301717`: Gen humano relacionado con la distrofia muscular de Duchenne.
+            - `NM_001301806`: Gen humano relacionado con el sistema inmune.
+            - `X16067`: ADN mitocondrial de Homo sapiens.
+            - `EU551120`: ADN ribosómico de Escherichia coli.
+            - `AY597007`: ADN ribosómico 16S de Pseudomonas aeruginosa.
+        """)
+
     if genbank_id:
         with st.spinner("Cargando datos desde GenBank... 🕒"):
             record = get_sequence_from_genbank(genbank_id)
@@ -84,7 +95,7 @@ if sidebar_render == "Distribución de bases nitrogenadas":
     st.title("📊 Distribución de Bases Nitrogenadas")
     st.markdown("""
     **Introducción:**
-    El ADN está compuesto por cuatro tipos de bases nitrogenadas: **adenina (A)**, **timina (T)**, **citosina (C)** y **guanina (G)**. La **distribución de bases nitrogenadas** describe cómo se distribuyen estas bases a lo largo de la secuencia de ADN. Cada organismo tiene una distribución particular, que puede ser informativa sobre su estructura genética, evolución, y función biológica.
+    El ADN está compuesto por cuatro tipos de bases nitrogenadas: **adenina (A)**, **timina (T)**, **citoína (C)** y **guanina (G)**. La **distribución de bases nitrogenadas** describe cómo se distribuyen estas bases a lo largo de la secuencia de ADN. Cada organismo tiene una distribución particular, que puede ser informativa sobre su estructura genética, evolución, y función biológica.
     
     **Aplicaciones:**
     - Identificación de regiones codificantes y no codificantes.
@@ -180,7 +191,7 @@ if sidebar_render == "Cálculo de Enriquecimiento de GC":
     st.title("🔬 Cálculo de Enriquecimiento de GC")
     st.markdown("""
     **Introducción:**
-    El contenido de **GC** se refiere a la proporción de bases **guanina (G)** y **citosina (C)** en una secuencia de ADN. El **enriquecimiento de GC** describe cómo varía este contenido a lo largo de una secuencia, y puede tener implicaciones sobre la estabilidad y la estructura del ADN. Las secuencias ricas en GC suelen ser más estables debido a los enlaces triples que unen G y C, en comparación con los enlaces dobles entre A y T.
+    El contenido de **GC** se refiere a la proporción de bases **guanina (G)** y **citoína (C)** en una secuencia de ADN. El **enriquecimiento de GC** describe cómo varía este contenido a lo largo de una secuencia, y puede tener implicaciones sobre la estabilidad y la estructura del ADN. Las secuencias ricas en GC suelen ser más estables debido a los enlaces triples que unen G y C, en comparación con los enlaces dobles entre A y T.
     
     **Aplicaciones:**
     - Estabilidad estructural.
