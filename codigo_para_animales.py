@@ -1,11 +1,10 @@
+# codigo_para_animales.py
+
 import sys
 import streamlit as st
+from secuencias_adn import secuencias_adn
 
-# Asegurarse de que la ruta al directorio sea la correcta
-# Si la ruta está correcta, esto asegura que `secuencias_adn` sea accesible.
-sys.path.append('/ruta/al/directorio')
-
-# Importar las funciones desde archivos separados
+# Importar las funciones necesarias
 from funciones_adn import (
     generar_helice_adn_interactiva,
     calcular_frecuencia_aminos,
@@ -14,21 +13,10 @@ from funciones_adn import (
     generar_grafico_dispersión
 )
 
-# Importar el diccionario de secuencias de ADN desde el archivo de secuencias
-try:
-    from secuencias_adn import secuencias_adn
-except ImportError as e:
-    st.error(f"Error al importar las secuencias de ADN: {e}")
-    secuencias_adn = {}  # En caso de que no se importe, asegurar que el diccionario esté vacío
-
 # Función principal de la aplicación Streamlit
 def main():
     # Título de la aplicación
     st.title("Análisis de ADN de Animales")
-
-    if not secuencias_adn:
-        st.error("No se pudieron cargar las secuencias de ADN. Verifique el archivo 'secuencias_adn.py'.")
-        return  # Detener la ejecución si no se pudo cargar el ADN
 
     # Crear un selector para elegir entre los 10 animales
     animal = st.selectbox("Selecciona un animal:", list(secuencias_adn.keys()))
