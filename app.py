@@ -1,64 +1,42 @@
 import streamlit as st
-from Bio import Entrez
 from Bio import SeqIO
 import matplotlib.pyplot as plt
 
-# Configurar Entrez
-Entrez.email = "a223201128@unison.mx"  # Asegúrate de poner tu correo electrónico
-
-# Función para obtener la secuencia de ADN y datos del gen desde GenBank
-def fetch_gene_data_from_genbank(accession_id):
+# Función para leer un archivo FASTA y obtener la secuencia
+def read_fasta(file):
     try:
-        # Buscar el archivo GenBank utilizando el ID de acceso
-        handle = Entrez.efetch(db="nucleotide", id=accession_id, rettype="gb", retmode="text")
-        record = SeqIO.read(handle, "genbank")
-        handle.close()
-
-        # Verificar si la secuencia es válida
-        if hasattr(record, 'seq') and record.seq:
-            # Extraer información adicional del GenBank (como características)
-            gene_description = record.description
-            gene_features = record.features
-            organism = record.annotations.get("organism", "Desconocido")
-            sequence = record.seq
-            return sequence, gene_description, gene_features, organism
-        else:
-            return None, "Secuencia no encontrada en el archivo de GenBank.", None, None
-
+        # Leer el archivo FASTA
+        record = SeqIO.read(file, "fasta")
+        sequence = record.seq
+        description = record.description
+        return sequence, description
     except Exception as e:
-        return None, f"Error al obtener la secuencia de GenBank: {e}", None, None
+        return None, f"Error al leer el archivo FASTA: {e}"
 
 # Función para calcular el contenido GC de la secuencia
 def calculate_gc_content(sequence):
-    gc_count = sum(1 for base in sequence if base in 'GCgc')
-    return (gc_count / len(sequence)) * 100 if len(sequence) > 0 else 0
+    if sequence:
+        sequence = str(sequence).upper()  # Convertir la secuencia a string y en mayúsculas
+        gc_count = sum(1 for base in sequence if base in 'GC')
+        return (gc_count / len(sequence)) * 100 if len(sequence) > 0 else 0
+    return 0  # Si la secuencia está vacía o no definida, devolver 0
 
-# Función para mostrar la información del gen
-def visualize_gene_info(sequence, gene_description, gene_features, organism):
+# Función para visualizar la secuencia y otras informaciones
+def visualize_gene_info(sequence, description):
     if sequence and len(sequence) > 0:
-        sequence = sequence.upper()  # Convertir la secuencia a mayúsculas
+        sequence = str(sequence).upper()  # Convertir la secuencia a mayúsculas
         length = len(sequence)
         gc_content = calculate_gc_content(sequence)
 
-        # Mostrar la descripción del gen y organismo
+        # Mostrar la descripción del gen
         st.subheader("Descripción del Gen:")
-        st.write(gene_description)
-        st.subheader("Organismo:")
-        st.write(organism)
+        st.write(description)
 
         # Mostrar información adicional
-        st.subheader("Información sobre el Gen:")
+        st.subheader("Información sobre la Secuencia:")
         st.write(f"Longitud de la secuencia: {length} bases")
         st.write(f"Contenido GC: {gc_content:.2f}%")
         
-        # Mostrar características del gen
-        st.subheader("Características del Gen:")
-        for feature in gene_features:
-            if feature.type == "CDS":  # CDS (Código de secuencia) es una característica común de genes
-                st.write(f"- {feature.type} en las posiciones {feature.location}")
-                if "product" in feature.qualifiers:
-                    st.write(f"  Función: {feature.qualifiers['product'][0]}")
-
         # Mostrar gráfico de contenido GC
         st.subheader("Gráfico de distribución de bases")
         fig, ax = plt.subplots()
@@ -68,23 +46,21 @@ def visualize_gene_info(sequence, gene_description, gene_features, organism):
         st.pyplot(fig)
 
     else:
-        st.warning("La secuencia de ADN no se pudo obtener o está vacía. Por favor, verifica el ID de acceso.")
+        st.warning("La secuencia de ADN no se pudo obtener o está vacía. Por favor, verifica el archivo FASTA.")
 
 # Título de la aplicación
-st.title("Análisis de Gen de Animal desde GenBank")
+st.title("Análisis de Secuencia de ADN desde un archivo FASTA")
 
-# Entrada para el ID de GenBank
-accession_id = st.text_input("Introduce el ID de acceso de GenBank (Accession ID):", 
-                             help="Puedes buscar el ID de acceso de un gen o genoma en GenBank (por ejemplo, NC_000913)")
+# Cargar archivo FASTA
+uploaded_file = st.file_uploader("Sube tu archivo FASTA", type=["fasta"])
 
-# Botón para obtener la secuencia desde GenBank
-if st.button("Obtener información genética desde GenBank"):
-    if accession_id:
-        sequence, gene_description, gene_features, organism = fetch_gene_data_from_genbank(accession_id)
-        if sequence:
-            st.success("Secuencia de ADN obtenida exitosamente!")
-            visualize_gene_info(sequence, gene_description, gene_features, organism)
-        else:
-            st.error(gene_description)
+# Botón para procesar el archivo
+if uploaded_file is not None:
+    sequence, description = read_fasta(uploaded_file)
+    if sequence:
+        st.success("Secuencia de ADN cargada exitosamente!")
+        visualize_gene_info(sequence, description)
     else:
-        st.warning("Por favor, ingresa un Accession ID válido.")
+        st.error(description)
+else:
+    st.warning("Por favor, sube un archivo FASTA para continuar.")
