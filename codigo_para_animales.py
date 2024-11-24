@@ -3,9 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from collections import Counter
-from io import StringIO
 import seaborn as sns
-import scipy.cluster.hierarchy as sch
+from io import StringIO
 from sklearn.metrics import pairwise_distances
 
 # Secuencias de ADN de animales
@@ -46,8 +45,23 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para crear un heatmap de las secuencias de ADN
-def visualizar_secuencias_heatmap():
+# Función para analizar la composición de las secuencias de ADN
+def analizar_composicion(secuencia):
+    # Contamos la cantidad de A, T, C, G
+    counter = Counter(secuencia)
+    total = len(secuencia)
+    proporciones = [counter['A'] / total, counter['T'] / total, counter['C'] / total, counter['G'] / total]
+    
+    # Crear gráfico circular de composición
+    labels = ['A', 'T', 'C', 'G']
+    sizes = proporciones
+    fig, ax = plt.subplots(figsize=(7, 7))
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+    ax.set_title(f"Composición de Bases en la Secuencia de ADN")
+    st.pyplot(fig)
+
+# Función para graficar mutaciones entre secuencias de ADN
+def graficar_mutaciones():
     # Crear una matriz de distancias de Hamming entre las secuencias
     secuencias = list(secuencias_adn.values())
     distancias = np.zeros((len(secuencias), len(secuencias)))
@@ -55,29 +69,12 @@ def visualizar_secuencias_heatmap():
     for i in range(len(secuencias)):
         for j in range(len(secuencias)):
             distancias[i, j] = sum([1 for a, b in zip(secuencias[i], secuencias[j]) if a != b])
-    
-    # Heatmap con Seaborn
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(distancias, xticklabels=list(secuencias_adn.keys()), yticklabels=list(secuencias_adn.keys()), cmap="YlGnBu", annot=True, fmt="d", ax=ax)
-    ax.set_title("Mapa de Distancia entre Secuencias de ADN")
-    st.pyplot(fig)
 
-# Función para graficar un mapa de similaridad de secuencias
-def mapa_similaridad_secuencias():
-    # Convertir las secuencias a formato binario para comparar
-    def secuencia_a_binaria(secuencia):
-        return [1 if base == 'A' else 0 for base in secuencia]  # Convertir A -> 1, T -> 0
-    
-    secuencias_binarias = [secuencia_a_binaria(secuencia) for secuencia in secuencias_adn.values()]
-    
-    # Calcular distancias entre secuencias (utilizando Hamming o alguna métrica binaria)
-    distancias = pairwise_distances(secuencias_binarias, metric='hamming')
-    
-    # Realizar clustering jerárquico
-    linkage = sch.linkage(distancias, method='average')
-    dendrogram = sch.dendrogram(linkage, labels=list(secuencias_adn.keys()), orientation='top')
-    
-    st.pyplot()
+    # Graficar las mutaciones usando un heatmap
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(distancias, xticklabels=list(secuencias_adn.keys()), yticklabels=list(secuencias_adn.keys()), cmap="YlGnBu", annot=True, fmt="d", ax=ax)
+    ax.set_title("Matriz de Mutaciones entre Secuencias de ADN")
+    st.pyplot(fig)
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -96,7 +93,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Heatmap de Secuencias', 'Mapa de Similaridad']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Composición de ADN', 'Mutaciones entre Secuencias']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -110,11 +107,11 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Heatmap de Secuencias':
-        visualizar_secuencias_heatmap()
+    elif ilustracion == 'Composición de ADN':
+        analizar_composicion(secuencia_adn)
 
-    elif ilustracion == 'Mapa de Similaridad':
-        mapa_similaridad_secuencias()
+    elif ilustracion == 'Mutaciones entre Secuencias':
+        graficar_mutaciones()
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
