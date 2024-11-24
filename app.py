@@ -38,18 +38,12 @@ def graficar_codones_interactivo(secuencia):
     frecuencias = list(counter.values())
 
     # Gráfico interactivo usando Plotly
-    fig = go.Figure([go.Bar(
-        x=codones_unicos, 
-        y=frecuencias, 
-        marker_color='skyblue',
-        hovertemplate="Codón: %{x}<br>Frecuencia: %{y}<extra></extra>"
-    )])
+    fig = go.Figure([go.Bar(x=codones_unicos, y=frecuencias, marker_color='skyblue')])
     fig.update_layout(
         title="Frecuencia de Codones en la Secuencia de ADN",
         xaxis_title="Codón",
         yaxis_title="Frecuencia",
-        xaxis_tickangle=-45,
-        template="plotly_dark",  # Cambiar el tema del gráfico
+        xaxis_tickangle=-45
     )
     st.plotly_chart(fig)
 
@@ -80,94 +74,45 @@ def mostrar_helice_3d():
             xaxis_title='X',
             yaxis_title='Y',
             zaxis_title='Z'
-        ),
-        template="plotly_dark",  # Tema de visualización oscura
+        )
     )
     
     st.plotly_chart(fig)
 
 # Función principal para la aplicación Streamlit
 def main():
-    # Barra lateral de navegación
-    st.sidebar.title("Análisis de ADN")
-    st.sidebar.markdown("""
-    Bienvenido al análisis interactivo de secuencias de ADN.
-    Elige una opción para ver el análisis correspondiente:
-    """)
-    
-    # Selección en barra lateral
-    opcion = st.sidebar.radio(
-        "Selecciona una opción",
-        ["Introducción", "Análisis de Secuencia", "Visualización Interactiva"]
-    )
+    st.title("Análisis de Secuencias de ADN desde GenBank")
 
-    if opcion == "Introducción":
-        st.title("Bioinformática: Características del ADN animal")
-        st.write("""
-            Esta aplicación te permitirá analizar secuencias de ADN obtenidas desde GenBank, 
-            y visualizar diferentes características e ilustraciones interactivas sobre las secuencias.
-        """)
+    # Entrada para el número de acceso de GenBank (Accession Number)
+    accession_number = st.text_input("Introduce el número de acceso de GenBank (Ej. NM_001003222):")
     
-    elif opcion == "Análisis de Secuencia":
-        st.title("Introduce el Número de Acceso de GenBank")
-        accession_number = st.text_input("Introduce el número de acceso de GenBank (Ej. NM_001003222):")
+    if accession_number:  # Si el número de acceso es proporcionado
+        # Obtener la secuencia de ADN y el nombre del organismo desde GenBank
+        secuencia_adn, nombre_organismo = obtener_secuencia_genbank(accession_number)
         
-        if accession_number:
-            secuencia_adn, nombre_organismo = obtener_secuencia_genbank(accession_number)
+        if secuencia_adn:
+            st.write(f"Secuencia de ADN obtenida de GenBank (Accession Number: {accession_number}):")
+            st.text(secuencia_adn)
+            st.write(f"**Organismo:** {nombre_organismo}")  # Mostrar el nombre del organismo
             
-            if secuencia_adn:
-                st.write(f"Secuencia de ADN obtenida de GenBank (Accession Number: {accession_number}):")
-                st.text(secuencia_adn)
-                st.write(f"**Organismo:** {nombre_organismo}")
-            else:
-                st.write("No se pudo obtener la secuencia. Verifica el número de acceso.")
-    
-    elif opcion == "Visualización Interactiva":
-        st.title("Selecciona una visualización")
-        
-        ilustracion = st.selectbox(
-            "Selecciona la ilustración para la secuencia de ADN:",
-            ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Hélice 3D de ADN']
-        )
-        
-        # Descripción e ilustración según la opción seleccionada
-        if ilustracion == 'Proporciones de Nucleótidos':
-            st.markdown("### Proporciones de Nucleótidos")
-            st.write("""
-                Esta visualización muestra la distribución de los cuatro nucleótidos (A, T, C, G) 
-                en la secuencia de ADN introducida.
-            """)
-            if accession_number:
+            # Opciones de ilustración
+            ilustracion = st.selectbox(
+                "Selecciona la ilustración para la secuencia de ADN:",
+                ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Hélice 3D de ADN']
+            )
+            
+            # Actualizar visualización según la opción seleccionada
+            if ilustracion == 'Proporciones de Nucleótidos':
                 proporciones = calcular_proporcion_nucleotidos(secuencia_adn)
-                # Usamos Plotly para un gráfico interactivo
-                fig = go.Figure([go.Pie(
-                    labels=['A', 'T', 'C', 'G'],
-                    values=proporciones,
-                    hole=0.3,
-                    hoverinfo="label+percent+value",
-                    marker=dict(colors=['#FF6347', '#FFD700', '#32CD32', '#4682B4'])
-                )])
-                fig.update_layout(
-                    title="Proporción de Nucleótidos en la Secuencia de ADN",
-                    template="plotly_dark",  # Tema de visualización oscura
-                )
-                st.plotly_chart(fig)
+                fig, ax = plt.subplots(figsize=(8, 8))
+                ax.pie(proporciones, labels=['A', 'T', 'C', 'G'], autopct='%1.1f%%', startangle=140)
+                ax.set_title("Proporción de Nucleótidos en la Secuencia de ADN")
+                st.pyplot(fig)
 
-        elif ilustracion == 'Frecuencia de Codones':
-            st.markdown("### Frecuencia de Codones")
-            st.write("""
-                Esta visualización muestra la frecuencia de aparición de los codones (tripletas de nucleótidos) 
-                en la secuencia de ADN.
-            """)
-            if accession_number:
+            elif ilustracion == 'Frecuencia de Codones':
                 graficar_codones_interactivo(secuencia_adn)
 
-        elif ilustracion == 'Secuencias de Replicación':
-            st.markdown("### Secuencias de Replicación")
-            st.write("""
-                Aquí se detectan posibles secuencias que puedan indicar orígenes de replicación en la secuencia de ADN.
-            """)
-            if accession_number:
+            elif ilustracion == 'Secuencias de Replicación':
                 secuencias_replicacion = analizar_replicacion(secuencia_adn)
                 if secuencias_replicacion:
                     st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
@@ -175,15 +120,14 @@ def main():
                 else:
                     st.write("No se encontraron secuencias de replicación en la secuencia.")
 
-        elif ilustracion == 'Hélice 3D de ADN':
-            st.markdown("### Hélice 3D de ADN")
-            st.write("""
-                Esta visualizacion muestra la estructura tridimensional de la hélice de ADN, donde puedes observar cómo se enrollan las cadenas de nucleótidos.
-            """)
-            if accession_number:
+            elif ilustracion == 'Hélice 3D de ADN':
                 mostrar_helice_3d()
-
+                
+        else:
+            st.write("No se pudo obtener la secuencia. Verifica el número de acceso.")
+    else:
+        st.warning("Por favor, ingresa un número de acceso válido para continuar.")
+    
 # Ejecutar la aplicación
 if __name__ == "__main__":
     main()
-
