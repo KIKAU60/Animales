@@ -143,6 +143,13 @@ if sidebar_render == "Distribución de bases":
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
     if genbank_id:
-        with st.spinner("
+        with st.spinner("Cargando datos desde GenBank... 🕒"):
+            record = get_sequence_from_genbank(genbank_id)
+            if record:
+                st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
 
-                        
+                # Distribución de las bases (A, T, C, G)
+                base_counts = dict(Counter(record.seq))
+                st.markdown("**Distribución de bases (A, T, C, G):**")
+                st.bar_chart(base_counts)
+            
