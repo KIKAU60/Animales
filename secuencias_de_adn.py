@@ -1,6 +1,6 @@
 # secuencias_adn.py
 
-secuencias_adn = {
+secuencias_de_adn = {
     'León': 'ATGCAGCTAGCGTACGTAGCGTACGTAGCTAGCGTACGATCG',
     'Tigre': 'ATGCTAGCAGTACGATCGTAGCTAGCTAGCGTAGCTGACTG',
     'Elefante': 'ATGCGTACGTAGCTAGTGCATCGTAGCTAGCGTACGAGCTA',
