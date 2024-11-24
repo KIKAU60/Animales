@@ -20,15 +20,6 @@ def get_sequence_from_genbank(genbank_id):
         st.error(f"Error al obtener la secuencia de GenBank: {e}")
         return None
 
-# Función para visualizar la secuencia de ADN en 3D (py3Dmol)
-def visualize_3D_dna(sequence):
-    viewer = py3Dmol.view(width=800, height=600)
-    viewer.addModel(str(sequence), "fasta")
-    viewer.setStyle({'stick': {}})
-    viewer.setBackgroundColor('white')
-    viewer.zoomTo()
-    viewer.show()
-
 # Página principal
 st.sidebar.header("Nucleótidos Operaciones 🧬")
 sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codones", "Distribución de bases nitrogenadas", "Análisis de Motivos Conservados", "Cálculo de Enriquecimiento de GC"])
@@ -147,13 +138,15 @@ if sidebar_render == "Cálculo de Enriquecimiento de GC":
                     # Obtener la secuencia de ADN
                     sequence = record.seq
 
-                    # Calcular el contenido de GC
-                    gc_content = gc_fraction(sequence) * 100  # En porcentaje
+                    # Calcular el contenido de GC por bloques de 100 nucleótidos
+                    gc_blocks = [gc_fraction(sequence[i:i+100]) * 100 for i in range(0, len(sequence), 100)]
+                    block_indices = [i for i in range(len(gc_blocks))]
 
-                    # Mostrar el gráfico del contenido de GC
+                    # Crear gráfico de barras interactivo para el contenido de GC en bloques
                     st.markdown("**🔬 Enriquecimiento de GC en la Secuencia**")
-                    fig, ax = plt.subplots()
-                    ax.plot(range(len(sequence)), [gc_fraction(sequence[i:i+100]) * 100 for i in range(len(sequence))])
-                    ax.set_title("Enriquecimiento de GC a lo largo de la secuencia")
-                    ax.set_xlabel("Posición en la secuencia")
-                    ax.set_ylabel("Contenido de GC (%)")
+                    fig = go.Figure(data=[go.Bar(
+                        x=block_indices,
+                        y=gc_blocks,
+                        marker=dict(color='green')
+                    )])
+                    fig.update
