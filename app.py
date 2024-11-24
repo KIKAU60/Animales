@@ -1,10 +1,7 @@
 from Bio.Seq import Seq
 from Bio import Entrez, SeqIO
-from Bio.SeqUtils.ProtParam import ProteinAnalysis
-from Bio.Blast import NCBIWWW, NCBIXML
+from Bio.SeqUtils import molecular_weight, gc_content
 import streamlit as st
-from stmol import showmol
-from stmol import *  # pip install stmol==0.0.9 , pip install ipython_genutils
 import matplotlib.pyplot as plt
 from collections import Counter
 from PIL import Image
@@ -16,14 +13,13 @@ from io import StringIO
 from io import BytesIO
 import streamlit.components.v1 as components
 
-
 # Creamos una barra
-st.sidebar.header("Proteínas Operaciones 🧬")
-sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Análisis de secuencia", "Parámetros de la estructura", "Secuencia de aminoácidos de proteínas", "Visualizador de proteínas"])
+st.sidebar.header("Nucleótidos Operaciones 🧬")
+sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Análisis de secuencia", "Parámetros de la estructura", "Secuencia de nucleótidos", "Visualizador de nucleótidos"])
 
 # Página principal
 if sidebar_render == "Inicio":
-    st.title('🧬 **Bioinformática: Análisis de Proteínas**')
+    st.title('🧬 **Bioinformática: Análisis de Nucleótidos**')
 
     # Estilo de texto y colores
     st.markdown("""
@@ -48,21 +44,21 @@ if sidebar_render == "Inicio":
     """, unsafe_allow_html=True)
 
     # Título
-    st.markdown('<div class="main-title">Bienvenido al Análisis de Proteínas</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title">Bienvenido al Análisis de Nucleótidos</div>', unsafe_allow_html=True)
 
     # Descripción y subsecciones
     st.markdown("""
     <div class="text-block">
-        Este tablero tiene el objetivo de facilitar el análisis y visualización de proteínas a partir de sus secuencias y estructuras. 
+        Este tablero tiene el objetivo de facilitar el análisis y visualización de secuencias de nucleótidos como ADN y ARN.
         Explora diferentes herramientas interactivas para estudiar sus propiedades y estructura. Las secciones disponibles son:
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    - **🔬 Análisis de secuencia**: Carga archivos FASTA y analiza las secuencias de proteínas. Extrae información relevante como la composición de aminoácidos y propiedades biofísicas.
-    - **🧬 Parámetros de la estructura**: Calcula características estructurales, como el peso molecular, el punto isoeléctrico y la estabilidad de las proteínas, con un análisis detallado a nivel molecular.
-    - **🔍 Secuencia de aminoácidos de proteínas**: Visualiza la secuencia y la proporción de átomos de diversas proteínas, con gráficos que permiten una mejor interpretación de sus características.
-    - **🌐 Visualización 3D de proteínas**: Introduce un código PDB y explora la estructura tridimensional de proteínas en modelos interactivos. Personaliza la visualización y observa la estructura desde diferentes perspectivas.
+    - **🔬 Análisis de secuencia**: Carga archivos FASTA y analiza las secuencias de nucleótidos. Extrae información relevante como la composición de bases y propiedades biofísicas.
+    - **🧬 Parámetros de la estructura**: Analiza características estructurales, como la cantidad de pares de bases, el contenido de GC y la estabilidad de la secuencia de ADN o ARN.
+    - **🔍 Secuencia de nucleótidos**: Visualiza la secuencia y la proporción de bases de diversas secuencias de ADN/ARN.
+    - **🌐 Visualización 3D de nucleótidos**: Introduce un código PDB y explora la estructura tridimensional de secuencias de ADN/ARN en modelos interactivos.
     """, unsafe_allow_html=True)
 
     # Línea divisoria
@@ -71,7 +67,7 @@ if sidebar_render == "Inicio":
     # Mensaje motivador
     st.markdown("""
     <div class="text-block">
-        ¡Explora las herramientas del lado izquierdo y haz un análisis profundo de las proteínas que te interesen!
+        ¡Explora las herramientas del lado izquierdo y haz un análisis profundo de las secuencias de nucleótidos que te interesen!
     </div>
     """, unsafe_allow_html=True)
 
@@ -83,10 +79,10 @@ if sidebar_render == "Inicio":
     - **Valeria Jara Salomón**
     """, unsafe_allow_html=True)
 
-# Creamos Análisis de Secuencia
+# Análisis de secuencia de nucleótidos
 if sidebar_render == "Análisis de secuencia":
-    st.title("🔬 Análisis de Secuencia")
-    st.markdown("Sube tu secuencia de proteína en formato **FASTA** para analizarla ⬇️")
+    st.title("🔬 Análisis de Secuencia de Nucleótidos")
+    st.markdown("Sube tu secuencia de ADN o ARN en formato **FASTA** para analizarla ⬇️")
 
     # Función para leer y decodificar archivo FASTA
     def read_fasta_file(uploaded_file):
@@ -102,7 +98,7 @@ if sidebar_render == "Análisis de secuencia":
                 with st.expander(f"🧬 Secuencia {i}: {record.id}"):
                     st.markdown(f"**🔖 ID:** `{record.id}`")
                     st.markdown(f"**🧾 Descripción:** {record.description}")
-                    st.markdown(f"**🧪 Secuencia de aminoácidos:**")
+                    st.markdown(f"**🧪 Secuencia de nucleótidos:**")
                     st.code(str(record.seq), language="text")
                     st.markdown(f"**📏 Longitud de la secuencia:** `{len(record.seq)}`")
                 st.divider()  # Línea divisoria entre secuencias
@@ -118,47 +114,38 @@ if sidebar_render == "Análisis de secuencia":
         st.info("Puedes copiar la secuencia para realizar otras operaciones.", icon="✨")
 
 
-# Parámetros de la estructura de proteínas
+# Parámetros de la estructura de nucleótidos
 if sidebar_render == "Parámetros de la estructura":
-    st.title("🔬 Cálculos de parámetros de la estructura de proteínas")
-    st.markdown("Introduce tu secuencia de proteína y ajusta los valores necesarios para analizar sus propiedades estructurales. 🌟")
+    st.title("🔬 Cálculos de parámetros de la estructura de Nucleótidos")
+    st.markdown("Introduce tu secuencia de ADN o ARN y ajusta los valores necesarios para analizar sus propiedades estructurales. 🌟")
 
-    # Entrada de secuencia y nivel de pH
-    sequence_input = st.text_area("✍️ Ingresa la secuencia de aminoácidos:")
-    pH = st.number_input("🌡️ ¿Con qué nivel de pH deseas analizar tu proteína?", min_value=0.0, max_value=14.0, value=7.0, step=0.1)
-    
+    # Entrada de secuencia
+    sequence_input = st.text_area("✍️ Ingresa la secuencia de nucleótidos:")
+
     if st.button("⚡ ¡Calcular!"):
         if not sequence_input:
             st.error("Por favor, ingresa una secuencia para calcular sus propiedades.")
         else:
-            # Análisis de la proteína
-            sequence_reference = ProteinAnalysis(str(sequence_input))
-            st.markdown("<h3 style='text-align: center; color: #4CAF50;'>✨ Propiedades calculadas de la proteína ✨</h3>", unsafe_allow_html=True)
+            # Análisis de la secuencia
+            sequence_reference = Seq(str(sequence_input))
+            st.markdown("<h3 style='text-align: center; color: #4CAF50;'>✨ Propiedades calculadas de la secuencia ✨</h3>", unsafe_allow_html=True)
 
-            # Número de aminoácidos
-            st.markdown("**1️⃣ Número de aminoácidos:**")
-            st.info(f"🔢 **Valor:** `{sequence_reference.count_amino_acids()}`")
-            st.markdown("Los aminoácidos son moléculas que se combinan para formar proteínas. Los aminoácidos y las proteínas son los pilares fundamentales de la vida. Cuando las proteínas se digieren o se descomponen, el resultado son los aminoácidos.")
+            # Contenido de GC
+            gc_percentage = round(gc_content(sequence_reference) * 100, 2)
+            st.markdown("**1️⃣ Contenido de GC:**")
+            st.info(f"⚖️ **Contenido de GC:** `{gc_percentage}%`")
+            st.markdown("El contenido de GC es la proporción de bases de guanina y citosina en una secuencia de ADN.")
 
             # Peso molecular
-            molecular_weight = round(sequence_reference.molecular_weight(), 2)
-            st.markdown("**2️⃣ Peso molecular:**")
-            st.info(f"⚖️ **Peso molecular:** `{molecular_weight} Da`")
-            st.markdown("Los marcadores de peso molecular, o ladders, son un conjunto de estándares que se utilizan para determinar el tamaño aproximado de una proteína o un de fragmento de ácido nucleico procesado en un gel de electroforesis.")
+            seq_weight = round(molecular_weight(sequence_reference), 2)
+            st.markdown("**2️⃣ Peso molecular de la secuencia:**")
+            st.info(f"⚖️ **Peso molecular:** `{seq_weight} Da`")
+            st.markdown("El peso molecular de una secuencia de ADN o ARN es el valor calculado sumando el peso de todos los nucleótidos.")
 
-            # Aromaticidad con barra de progreso
-            aromaticity = round(sequence_reference.aromaticity(), 2)
-            st.markdown("**3️⃣ Aromaticidad:**")
-            st.info("Proporción de aminoácidos aromáticos en la proteína.")
-            progress_value = int(aromaticity * 100)  # Convertir a porcentaje
-            st.progress(progress_value)  # Barra de progreso de 0 a 100%
-            st.markdown(f"**{progress_value}%** de la proteína tiene aminoácidos aromáticos.")
-            st.markdown("La aromaticidad es una propiedad de las estructuras cíclicas, no saturadas, cuya estabilidad es superior a la de las estructuras de cadena abierta con igual número de enlaces múltiples.")
+            # Gráfico de la distribución de las bases
+            base_counts = dict(Counter(sequence_reference))
+            st.markdown("**3️⃣ Distribución de bases (A, T, C, G):**")
+            st.bar_chart(base_counts)
 
-            # Índice de inestabilidad con barra visual
-            instability_index = round(sequence_reference.instability_index(), 2)
-            stability = "La proteína es inestable" if instability_index >= 40 else "La proteína es estable"
-            st.markdown("**4️⃣ Índice de inestabilidad:**")
-            st.info(f"📉 **Valor:** `{instability_index}` - ⚖️ **Estabilidad:** {stability}")
-            progress_value_instability = min(int(instability_index), 100)  # Convertir a porcentaje y limitar a 100
-            st.progress(min(int(instability_index), 100))  # Barra de
+            st.markdown("La distribución de bases muestra cuántas veces aparece cada base (A, T, C, G) en la secuencia.")
+
