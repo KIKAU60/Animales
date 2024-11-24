@@ -2,7 +2,6 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import seaborn as sns
 from collections import Counter
 import re
 from Bio import Entrez
@@ -163,4 +162,28 @@ def main():
             if accession_number:
                 graficar_codones_interactivo(secuencia_adn)
 
-       
+        elif ilustracion == 'Secuencias de Replicación':
+            st.markdown("### Secuencias de Replicación")
+            st.write("""
+                Aquí se detectan posibles secuencias que puedan indicar orígenes de replicación en la secuencia de ADN.
+            """)
+            if accession_number:
+                secuencias_replicacion = analizar_replicacion(secuencia_adn)
+                if secuencias_replicacion:
+                    st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
+                    st.write(secuencias_replicacion)
+                else:
+                    st.write("No se encontraron secuencias de replicación en la secuencia.")
+
+        elif ilustracion == 'Hélice 3D de ADN':
+            st.markdown("### Hélice 3D de ADN")
+            st.write("""
+                Esta visualizacion muestra la estructura tridimensional de la hélice de ADN, donde puedes observar cómo se enrollan las cadenas de nucleótidos.
+            """)
+            if accession_number:
+                mostrar_helice_3d()
+
+# Ejecutar la aplicación
+if __name__ == "__main__":
+    main()
+
