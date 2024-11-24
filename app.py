@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import py3Dmol  # Para la visualización 3D
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Función para obtener la secuencia desde GenBank
 def get_sequence_from_genbank(genbank_id):
@@ -18,8 +20,8 @@ def get_sequence_from_genbank(genbank_id):
         st.error(f"Error al obtener la secuencia de GenBank: {e}")
         return None
 
-# Función para visualizar la secuencia de nucleótidos en 3D (py3Dmol)
-def visualize_3D_sequence(sequence):
+# Función para visualizar la secuencia de ADN en 3D (py3Dmol)
+def visualize_3D_dna(sequence):
     viewer = py3Dmol.view(width=800, height=600)
     viewer.addModel(str(sequence), "fasta")
     viewer.setStyle({'stick': {}})
@@ -29,7 +31,7 @@ def visualize_3D_sequence(sequence):
 
 # Página principal
 st.sidebar.header("Nucleótidos Operaciones 🧬")
-sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Análisis de secuencia de GenBank", "Parámetros estructurales de nucleótidos", "Visualización 3D de nucleótidos", "Distribución de bases", "Análisis de codones"])
+sidebar_render = st.sidebar.radio("Opciones : ", ["Inicio", "Frecuencia de codones", "Distribución de bases nitrogenadas", "Visualización 3D de ADN", "Cantidad de proteínas codificadas, genes y cromosomas"])
 
 # Página de inicio
 if sidebar_render == "Inicio":
@@ -38,56 +40,16 @@ if sidebar_render == "Inicio":
     st.markdown("""
     Este tablero tiene el objetivo de facilitar el análisis y visualización de secuencias de nucleótidos como ADN y ARN. 
     Puedes ingresar un ID de GenBank para obtener la secuencia asociada y estudiar sus propiedades. Las secciones disponibles son:
-    - **🔬 Análisis de secuencia de GenBank**: Ingresa un ID de GenBank y analiza la secuencia de nucleótidos.
-    - **🧬 Parámetros estructurales de nucleótidos**: Analiza características como el contenido de GC y el peso molecular de las secuencias.
-    - **🔍 Visualización 3D de nucleótidos**: Visualiza la secuencia de nucleótidos en 3D y realiza un análisis interactivo.
-    - **📊 Distribución de bases**: Muestra un gráfico interactivo con la distribución de las bases de la secuencia.
-    - **🔬 Análisis de codones**: Analiza los codones en la secuencia y su frecuencia.
+    - **🔬 Frecuencia de codones**: Análisis de la frecuencia de codones en la secuencia de nucleótidos.
+    - **📊 Distribución de bases nitrogenadas**: Analiza la distribución de las bases nitrogenadas A, T, C, G de la secuencia.
+    - **🌐 Visualización 3D de ADN**: Visualiza la secuencia de ADN en 3D.
+    - **🧬 Cantidad de proteínas codificadas, genes y cromosomas**: Muestra la cantidad de proteínas codificadas, genes y cromosomas, ilustrados.
     """)
 
-# Análisis de secuencia de nucleótidos desde GenBank
-if sidebar_render == "Análisis de secuencia de GenBank":
-    st.title("🔬 Análisis de Secuencia de Nucleótidos desde GenBank")
-    st.markdown("Ingresa un **ID de GenBank** para analizar la secuencia de ADN/ARN ⬇️")
-
-    # Entrada de ID de GenBank
-    genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
-
-    if genbank_id:
-        with st.spinner("Cargando datos desde GenBank... 🕒"):
-            record = get_sequence_from_genbank(genbank_id)
-            if record:
-                st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
-
-                # Mostrar el nombre del organismo
-                organism = record.annotations.get("organism", "Desconocido")
-                st.markdown(f"**🦠 Organismo o especie:** {organism}")
-
-                # Mostrar la secuencia de nucleótidos
-                st.markdown(f"**🔖 ID de GenBank:** `{record.id}`")
-                st.markdown(f"**📜 Descripción:** {record.description}")
-                st.markdown("**🧪 Secuencia de nucleótidos:**")
-                st.code(str(record.seq), language="text")
-
-                # Propiedades de la secuencia
-                st.markdown("**1️⃣ Contenido de GC:**")
-                gc_percentage = round(gc_fraction(record.seq) * 100, 2)
-                st.info(f"⚖️ **Contenido de GC:** `{gc_percentage}%`")
-
-                # Peso molecular de la secuencia
-                seq_weight = round(molecular_weight(record.seq), 2)
-                st.markdown("**2️⃣ Peso molecular de la secuencia:**")
-                st.info(f"⚖️ **Peso molecular:** `{seq_weight} Da`")
-
-                # Gráfico de la distribución de las bases
-                base_counts = dict(Counter(record.seq))
-                st.markdown("**3️⃣ Distribución de bases (A, T, C, G):**")
-                st.bar_chart(base_counts)
-
-# Parámetros estructurales de nucleótidos
-if sidebar_render == "Parámetros estructurales de nucleótidos":
-    st.title("🧬 Parámetros de la Estructura de Nucleótidos")
-    st.markdown("Ingresa un **ID de GenBank** para calcular los parámetros de la secuencia de nucleótidos ⬇️")
+# Frecuencia de codones
+if sidebar_render == "Frecuencia de codones":
+    st.title("🔬 Frecuencia de Codones en la Secuencia de Nucleótidos")
+    st.markdown("Ingresa un **ID de GenBank** para analizar la frecuencia de codones ⬇️")
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
@@ -96,27 +58,44 @@ if sidebar_render == "Parámetros estructurales de nucleótidos":
             record = get_sequence_from_genbank(genbank_id)
             if record:
                 st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
-                
-                # Mostrar nombre del organismo
-                organism = record.annotations.get("organism", "Desconocido")
-                st.markdown(f"**🦠 Organismo o especie:** {organism}")
 
-                # Calcular y mostrar parámetros estructurales
-                gc_percentage = round(gc_fraction(record.seq) * 100, 2)
-                st.markdown(f"**1️⃣ Contenido de GC:** {gc_percentage}%")
+                # Codificar la secuencia y obtener frecuencia de codones
+                codons = [str(record.seq[i:i+3]) for i in range(0, len(record.seq), 3)]
+                codon_counts = dict(Counter(codons))
 
-                seq_weight = round(molecular_weight(record.seq), 2)
-                st.markdown(f"**2️⃣ Peso molecular:** {seq_weight} Da")
+                # Crear la gráfica de barras interactiva para la frecuencia de codones
+                st.markdown("**Frecuencia de Codones:**")
+                codon_df = pd.DataFrame(list(codon_counts.items()), columns=['Codón', 'Frecuencia'])
+                fig = px.bar(codon_df, x='Codón', y='Frecuencia', title="Frecuencia de Codones en la Secuencia", labels={'Codón': 'Codón', 'Frecuencia': 'Frecuencia'})
+                st.plotly_chart(fig)
 
-                # Gráfico de la distribución de bases
+# Distribución de bases nitrogenadas
+if sidebar_render == "Distribución de bases nitrogenadas":
+    st.title("📊 Distribución de Bases Nitrogenadas")
+    st.markdown("Ingresa un **ID de GenBank** para analizar la distribución de bases A, T, C, G ⬇️")
+
+    genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
+
+    if genbank_id:
+        with st.spinner("Cargando datos desde GenBank... 🕒"):
+            record = get_sequence_from_genbank(genbank_id)
+            if record:
+                st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
+
+                # Distribución de bases
                 base_counts = dict(Counter(record.seq))
-                st.markdown("**3️⃣ Distribución de bases (A, T, C, G):**")
-                st.bar_chart(base_counts)
 
-# Visualización 3D de nucleótidos
-if sidebar_render == "Visualización 3D de nucleótidos":
-    st.title("🌐 Visualización 3D de Nucleótidos")
-    st.markdown("Ingresa un **ID de GenBank** para visualizar la secuencia de nucleótidos en 3D ⬇️")
+                # Crear gráfico de pastel interactivo para la distribución de bases nitrogenadas
+                st.markdown("**Distribución de Bases Nitrogenadas (A, T, C, G):**")
+                base_df = pd.DataFrame(list(base_counts.items()), columns=['Base', 'Cantidad'])
+                fig = px.pie(base_df, names='Base', values='Cantidad', title="Distribución de Bases Nitrogenadas")
+                fig.update_traces(textinfo="percent+label", pull=[0.1, 0.1, 0.1, 0.1])
+                st.plotly_chart(fig)
+
+# Visualización 3D de ADN
+if sidebar_render == "Visualización 3D de ADN":
+    st.title("🌐 Visualización 3D de ADN")
+    st.markdown("Ingresa un **ID de GenBank** para visualizar la secuencia de ADN en 3D ⬇️")
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank para ver la secuencia 3D:", "")
 
@@ -129,16 +108,16 @@ if sidebar_render == "Visualización 3D de nucleótidos":
                 # Visualizar la secuencia en 3D
                 st.markdown(f"**🔖 ID de GenBank:** `{record.id}`")
                 st.markdown(f"**📜 Descripción:** {record.description}")
-                st.markdown("**🧪 Secuencia de nucleótidos:**")
+                st.markdown("**🧪 Secuencia de ADN:**")
                 st.code(str(record.seq), language="text")
 
-                # Visualizar la secuencia de nucleótidos en 3D
-                visualize_3D_sequence(record.seq)
+                # Visualizar la secuencia de ADN en 3D
+                visualize_3D_dna(record.seq)
 
-# Distribución de bases
-if sidebar_render == "Distribución de bases":
-    st.title("📊 Distribución de Bases")
-    st.markdown("Muestra un gráfico interactivo de la distribución de bases (A, T, C, G) en la secuencia de nucleótidos ⬇️")
+# Cantidad de proteínas codificadas, genes y cromosomas
+if sidebar_render == "Cantidad de proteínas codificadas, genes y cromosomas":
+    st.title("🧬 Cantidad de Proteínas Codificadas, Genes y Cromosomas")
+    st.markdown("Ingresa un **ID de GenBank** para obtener la cantidad de proteínas codificadas, genes y cromosomas ⬇️")
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
@@ -148,8 +127,25 @@ if sidebar_render == "Distribución de bases":
             if record:
                 st.success("¡Secuencia obtenida exitosamente! 🎉", icon="✅")
 
-                # Distribución de las bases (A, T, C, G)
-                base_counts = dict(Counter(record.seq))
-                st.markdown("**Distribución de bases (A, T, C, G):**")
-                st.bar_chart(base_counts)
-            
+                # Obtener información adicional
+                cds_count = len([feature for feature in record.features if feature.type == 'CDS'])
+                gene_count = len([feature for feature in record.features if feature.type == 'gene'])
+                chromosome_count = len([feature for feature in record.features if feature.type == 'chromosome'])
+
+                # Mostrar los resultados
+                st.markdown(f"**Proteínas Codificadas (CDS):** {cds_count}")
+                st.markdown(f"**Cantidad de Genes:** {gene_count}")
+                st.markdown(f"**Cantidad de Cromosomas:** {chromosome_count}")
+
+                # Opcionalmente, podemos agregar imágenes ilustrativas si las tenemos disponibles
+                st.image("proteins_coding.png", caption="Proteínas Codificadas", use_column_width=True)
+                st.image("genes_count.png", caption="Cantidad de Genes", use_column_width=True)
+                st.image("chromosomes_count.png", caption="Cantidad de Cromosomas", use_column_width=True
+
+# Información adicional o conclusiones
+if sidebar_render != "Inicio":
+    st.sidebar.markdown("""
+    Para obtener más detalles sobre cómo interpretar los resultados o cómo funciona el análisis de secuencias de GenBank, consulta la documentación de Biopython o el sitio web oficial de GenBank.
+    Si deseas realizar otro análisis, simplemente elige una de las opciones en el menú lateral.
+    """)
+
