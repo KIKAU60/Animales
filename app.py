@@ -17,10 +17,11 @@ def obtener_secuencia_genbank(accession_number):
         handle = Entrez.efetch(db="nucleotide", id=accession_number, rettype="gb", retmode="text")
         record = SeqIO.read(handle, "genbank")  # Lee el archivo de GenBank
         secuencia_adn = str(record.seq)  # Convierte la secuencia en cadena
-        return secuencia_adn
+        nombre_organismo = record.annotations.get('organism', 'Organismo desconocido')  # Obtener el nombre del organismo
+        return secuencia_adn, nombre_organismo
     except Exception as e:
         st.error(f"Error al obtener la secuencia de GenBank: {e}")
-        return None
+        return None, None
 
 # Función para calcular las proporciones de nucleótidos (A, T, C, G)
 def calcular_proporcion_nucleotidos(secuencia):
@@ -86,12 +87,13 @@ def main():
     accession_number = st.text_input("Introduce el número de acceso de GenBank (Accession Number):")
     
     if accession_number:
-        # Obtener la secuencia de ADN desde GenBank
-        secuencia_adn = obtener_secuencia_genbank(accession_number)
+        # Obtener la secuencia de ADN y el nombre del organismo desde GenBank
+        secuencia_adn, nombre_organismo = obtener_secuencia_genbank(accession_number)
         
         if secuencia_adn:
             st.write(f"Secuencia de ADN obtenida de GenBank (Accession Number: {accession_number}):")
             st.text(secuencia_adn)
+            st.write(f"**Organismo:** {nombre_organismo}")  # Mostrar el nombre del organismo
             
             # Opciones de ilustración
             ilustracion = st.selectbox(
