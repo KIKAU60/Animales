@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from collections import Counter
+from io import StringIO
+import seaborn as sns
+import scipy.cluster.hierarchy as sch
 
 # Secuencias de ADN de animales
 secuencias_adn = {
@@ -42,30 +45,44 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para ilustrar la estructura de la doble hélice (gráfico 3D simple)
-def ilustrar_doble_helice(secuencia):
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
+# Función para ilustrar la relación filogenética (Árbol)
+def ilustrar_evolucion_filogenetica():
+    # Crear datos de ejemplo (distancias de Hamming entre secuencias de ADN)
+    animals = list(secuencias_adn.keys())
+    secuencias = list(secuencias_adn.values())
     
-    # Simulación de puntos en 3D (esto es solo una representación visual)
-    x = np.random.rand(10)
-    y = np.random.rand(10)
-    z = np.random.rand(10)
+    # Crear una matriz de distancias de Hamming (simuladas en este caso)
+    distancias = np.zeros((len(secuencias), len(secuencias)))
     
-    ax.plot(x, y, z, label="Estructura de la Doble Hélice")
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title("Estructura de la Doble Hélice de ADN")
-    ax.legend()
-    st.pyplot(fig)
+    for i in range(len(secuencias)):
+        for j in range(len(secuencias)):
+            distancias[i, j] = sum([1 for a, b in zip(secuencias[i], secuencias[j]) if a != b])
+    
+    # Crear un árbol jerárquico usando scipy
+    linkage = sch.linkage(distancias, method='average')
+    dendrogram = sch.dendrogram(linkage, labels=animals, orientation='right')
+    
+    st.pyplot()
 
-# Función para mostrar la secuencia de ADN como texto
-def representar_secuencia(secuencia):
-    fig, ax = plt.subplots(figsize=(10, 2))
-    ax.text(0.5, 0.5, secuencia, fontsize=12, ha='center', va='center')
-    ax.set_title("Representación de la Secuencia de ADN")
-    ax.axis('off')
+# Función para identificar y graficar motivos conservados
+def buscar_motivos_conservados(secuencia, longitud_motivo=5):
+    # Buscar motivos conservados de longitud especificada
+    motivos = [secuencia[i:i+longitud_motivo] for i in range(len(secuencia) - longitud_motivo + 1)]
+    counter = Counter(motivos)
+    
+    # Mostrar los motivos más frecuentes
+    motivos_frecuentes = counter.most_common(10)
+    
+    # Crear un gráfico de barras con los motivos más frecuentes
+    motivos_unicos = [motivo for motivo, _ in motivos_frecuentes]
+    frecuencias = [freq for _, freq in motivos_frecuentes]
+    
+    fig = plt.figure(figsize=(10, 6))
+    plt.bar(motivos_unicos, frecuencias, color='lightcoral')
+    plt.xticks(rotation=45, ha='right')
+    plt.xlabel('Motivo Conservado')
+    plt.ylabel('Frecuencia')
+    plt.title(f"Motivos Conservados en la Secuencia de ADN")
     st.pyplot(fig)
 
 # Función principal para la aplicación Streamlit
@@ -85,7 +102,7 @@ def main():
     # Opciones de ilustración
     ilustracion = st.selectbox(
         "Selecciona la ilustración para la secuencia de ADN:",
-        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Estructura de Doble Hélice', 'Representación de la Secuencia']
+        ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Evolución Filogenética', 'Motivos Conservados']
     )
     
     # Actualizar visualización según la opción seleccionada
@@ -99,11 +116,11 @@ def main():
     elif ilustracion == 'Frecuencia de Codones':
         graficar_codones_interactivo(secuencia_adn)
 
-    elif ilustracion == 'Estructura de Doble Hélice':
-        ilustrar_doble_helice(secuencia_adn)
+    elif ilustracion == 'Evolución Filogenética':
+        ilustrar_evolucion_filogenetica()
 
-    elif ilustracion == 'Representación de la Secuencia':
-        representar_secuencia(secuencia_adn)
+    elif ilustracion == 'Motivos Conservados':
+        buscar_motivos_conservados(secuencia_adn)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
