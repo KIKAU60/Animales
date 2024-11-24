@@ -71,7 +71,15 @@ if sidebar_render == "Frecuencia de codones":
 # Distribución de bases nitrogenadas
 if sidebar_render == "Distribución de bases nitrogenadas":
     st.title("📊 Distribución de Bases Nitrogenadas")
-    st.markdown("Ingresa un **ID de GenBank** para analizar la distribución de bases A, T, C, G ⬇️")
+    st.markdown("""
+    **Introducción:**
+    El ADN está compuesto por cuatro tipos de bases nitrogenadas: **adenina (A)**, **timina (T)**, **citosina (C)** y **guanina (G)**. La **distribución de bases nitrogenadas** describe cómo se distribuyen estas bases a lo largo de la secuencia de ADN. Cada organismo tiene una distribución particular, que puede ser informativa sobre su estructura genética, evolución, y función biológica.
+    
+    **Aplicaciones:**
+    - Identificación de regiones codificantes y no codificantes.
+    - Estudio de genomas.
+    - Análisis de regiones ricas en GC.
+    """)
 
     genbank_id = st.text_input("🧬 Ingresa el ID de GenBank:", "")
 
@@ -94,7 +102,15 @@ if sidebar_render == "Distribución de bases nitrogenadas":
 # 1. Análisis de Motivos Conservados con Heatmap
 if sidebar_render == "Análisis de Motivos Conservados":
     st.title("🔬 Análisis de Motivos Conservados")
-    st.markdown("Introduce el ID de GenBank para analizar los motivos conservados en la secuencia de ADN. 🌟")
+    st.markdown("""
+    **Introducción:**
+    Los **motivos conservados** son secuencias de nucleótidos o aminoácidos que se mantienen sin cambios a lo largo de la evolución debido a su función biológica esencial. En el análisis de **motivos conservados**, buscamos identificar estos patrones repetitivos en secuencias de ADN, ya que pueden ser cruciales para funciones específicas como la unión de proteínas, la replicación del ADN o la transcripción.
+    
+    **Aplicaciones:**
+    - Predicción de sitios funcionales.
+    - Estudio de evolución molecular.
+    - Desarrollo de fármacos.
+    """)
 
     # Entrada para el ID de GenBank
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
@@ -151,7 +167,15 @@ if sidebar_render == "Análisis de Motivos Conservados":
 # Cálculo de Enriquecimiento de GC con gráfico de líneas
 if sidebar_render == "Cálculo de Enriquecimiento de GC":
     st.title("🔬 Cálculo de Enriquecimiento de GC")
-    st.markdown("Introduce el ID de GenBank para analizar el contenido de GC en la secuencia de ADN. 🌟")
+    st.markdown("""
+    **Introducción:**
+    El contenido de **GC** se refiere a la proporción de bases **guanina (G)** y **citosina (C)** en una secuencia de ADN. El **enriquecimiento de GC** describe cómo varía este contenido a lo largo de una secuencia, y puede tener implicaciones sobre la estabilidad y la estructura del ADN. Las secuencias ricas en GC suelen ser más estables debido a los enlaces triples que unen G y C, en comparación con los enlaces dobles entre A y T.
+    
+    **Aplicaciones:**
+    - Estabilidad estructural.
+    - Análisis de genomas.
+    - Estudio de adaptación evolutiva.
+    """)
 
     genbank_id = st.text_input("✍️ Ingresa el ID de GenBank", "NM_001301717")  # ID de ejemplo
 
