@@ -1,11 +1,21 @@
 import streamlit as st
-import random
-import string
+from Bio import Entrez
+from Bio import SeqIO
 import matplotlib.pyplot as plt
 
-# Función para generar una secuencia de ADN aleatoria de un tamaño dado
-def generate_random_dna(length):
-    return ''.join(random.choice('ACGT') for _ in range(length))
+# Configuración de Entrez
+Entrez.email = "a223201128@unison.mx"  # Asegúrate de poner tu correo electrónico
+
+# Función para obtener la secuencia de ADN desde GenBank usando un Accession ID
+def fetch_dna_from_genbank(accession_id):
+    try:
+        # Buscar en GenBank utilizando el Accession ID
+        handle = Entrez.efetch(db="nucleotide", id=accession_id, rettype="gb", retmode="text")
+        record = SeqIO.read(handle, "genbank")
+        handle.close()
+        return record.seq
+    except Exception as e:
+        return None, f"Error al obtener la secuencia de GenBank: {e}"
 
 # Función para calcular el contenido GC de la secuencia
 def calculate_gc_content(sequence):
@@ -45,24 +55,19 @@ def visualize_dna(sequence):
 # Título de la aplicación
 st.title("Análisis de Secuencias de ADN Animal")
 
-# Opción para generar una secuencia de ADN aleatoria
-generate_sequence = st.checkbox("Generar secuencia de ADN aleatoria")
+# Entrada para el ID de GenBank
+accession_id = st.text_input("Introduce el ID de acceso de GenBank (Accession ID):", 
+                             help="Puedes buscar el ID de acceso de un gen o genoma en GenBank (por ejemplo, NC_000913)")
 
-# Si el usuario quiere generar una secuencia aleatoria
-if generate_sequence:
-    sequence_length = st.slider("Selecciona la longitud de la secuencia", 10, 1000, 100)
-    random_sequence = generate_random_dna(sequence_length)
-    st.text_area("Secuencia generada aleatoriamente:", random_sequence, height=150)
-
-# Opción para que el usuario ingrese su propia secuencia de ADN
-sequence_input = st.text_area(
-    "Introduce una secuencia de ADN:", 
-    help="Introduce la secuencia de ADN en formato estándar (ejemplo: ATGCGTACGTTAGC...)."
-)
-
-# Botón para visualizar la secuencia
-if st.button("Visualizar Secuencia"):
-    if generate_sequence:
-        visualize_dna(random_sequence)
+# Botón para obtener la secuencia desde GenBank
+if st.button("Obtener secuencia desde GenBank"):
+    if accession_id:
+        sequence, error_message = fetch_dna_from_genbank(accession_id)
+        if sequence:
+            st.success("Secuencia de ADN obtenida exitosamente!")
+            visualize_dna(sequence)
+        else:
+            st.error(error_message)
     else:
-        visualize_dna(sequence_input)
+        st.warning("Por favor, ingresa un Accession ID válido.")
+
