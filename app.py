@@ -8,6 +8,8 @@ import random
 import re
 from Bio import Entrez
 from Bio import SeqIO
+from Bio import Phylo
+import nglview as nv
 
 # Configuración de Entrez: Debes proporcionar tu correo para cumplir con los requisitos de GenBank
 Entrez.email = "a223201128@unison.mx"  # Sustituye con tu correo electrónico
@@ -19,10 +21,10 @@ def obtener_secuencia_genbank(accession_number):
         handle = Entrez.efetch(db="nucleotide", id=accession_number, rettype="gb", retmode="text")
         record = SeqIO.read(handle, "genbank")  # Lee el archivo de GenBank
         secuencia_adn = str(record.seq)  # Convierte la secuencia en cadena
-        return secuencia_adn
+        return secuencia_adn, record
     except Exception as e:
         st.error(f"Error al obtener la secuencia de GenBank: {e}")
-        return None
+        return None, None
 
 # Función para calcular las proporciones de nucleótidos (A, T, C, G)
 def calcular_proporcion_nucleotidos(secuencia):
@@ -48,17 +50,33 @@ def graficar_codones_interactivo(secuencia):
     )
     st.plotly_chart(fig)
 
-# Función para analizar secuencias de replicación (orígenes de replicación)
-def analizar_replicacion(secuencia):
-    # Detectamos secuencias comunes en orígenes de replicación, como la secuencia "ATG" o similares
-    secuencias_replicacion = re.findall(r'ATG[AGCT]{5,10}ATG', secuencia)  # Secuencias con características de replicación
-    return secuencias_replicacion
+# Función para generar un árbol filogenético de secuencias de ADN
+def generar_arbol_filogenetico(secuencias):
+    # Cargar las secuencias de ADN y construir un árbol filogenético
+    from Bio.Align import MultipleSeqAlignment
+    from Bio.Align.Applications import ClustalwCommandline
 
-# Función para detectar secuencias de regulación
-def detectar_secuencias_reguladoras(secuencia):
-    # Supongamos que los promotores y elementos potenciadores tienen secuencias específicas
-    secuencias_reguladoras = re.findall(r'TATAAA|CAAT|GC-box', secuencia)
-    return secuencias_reguladoras
+    # Crear un alineamiento ficticio de ejemplo con las secuencias proporcionadas
+    alignment = MultipleSeqAlignment([SeqIO.read(seq, "genbank") for seq in secuencias])
+
+    # Usar ClustalW para generar un árbol filogenético
+    clustalw_cline = ClustalwCommandline("clustalw2", infile="alignment.aln")
+    clustalw_cline()
+
+    # Leer el archivo de salida y graficar el árbol filogenético
+    tree = Phylo.read("tree.dnd", "newick")
+    Phylo.draw(tree)
+    st.pyplot()
+
+# Función para mostrar la estructura 3D de la hélice de ADN
+def mostrar_helice_3d(secuencia):
+    # Visualización 3D de la hélice de ADN usando nglview
+    estructura = f'PDB_file_{random.randint(1, 10000)}.pdb'  # Generamos un archivo temporal para la hélice
+    # Aquí deberías usar una estructura de ADN en formato PDB, por ahora usaremos un nombre genérico
+
+    # Muestra la estructura 3D
+    view = nv.show_file(estructura)  # Asume que tienes un archivo PDB para la hélice
+    view
 
 # Función principal para la aplicación Streamlit
 def main():
@@ -69,7 +87,7 @@ def main():
     
     if accession_number:
         # Obtener la secuencia de ADN desde GenBank
-        secuencia_adn = obtener_secuencia_genbank(accession_number)
+        secuencia_adn, record = obtener_secuencia_genbank(accession_number)
         
         if secuencia_adn:
             st.write(f"Secuencia de ADN obtenida de GenBank (Accession Number: {accession_number}):")
@@ -78,7 +96,7 @@ def main():
             # Opciones de ilustración
             ilustracion = st.selectbox(
                 "Selecciona la ilustración para la secuencia de ADN:",
-                ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Secuencias de Replicación', 'Secuencias de Regulación']
+                ['Proporciones de Nucleótidos', 'Frecuencia de Codones', 'Árbol Filogenético', 'Estructura 3D de la Hélice']
             )
             
             # Actualizar visualización según la opción seleccionada
@@ -92,21 +110,13 @@ def main():
             elif ilustracion == 'Frecuencia de Codones':
                 graficar_codones_interactivo(secuencia_adn)
 
-            elif ilustracion == 'Secuencias de Replicación':
-                secuencias_replicacion = analizar_replicacion(secuencia_adn)
-                if secuencias_replicacion:
-                    st.write("Se han encontrado las siguientes secuencias de replicación (orígenes de replicación):")
-                    st.write(secuencias_replicacion)
-                else:
-                    st.write("No se encontraron secuencias de replicación en la secuencia.")
+            elif ilustracion == 'Árbol Filogenético':
+                # Asegúrate de tener las secuencias necesarias para el árbol filogenético
+                secuencias = [secuencia_adn]  # Aquí debes añadir más secuencias si las tienes
+                generar_arbol_filogenetico(secuencias)
 
-            elif ilustracion == 'Secuencias de Regulación':
-                secuencias_reguladoras = detectar_secuencias_reguladoras(secuencia_adn)
-                if secuencias_reguladoras:
-                    st.write("Se han encontrado las siguientes secuencias reguladoras:")
-                    st.write(secuencias_reguladoras)
-                else:
-                    st.write("No se encontraron secuencias reguladoras en la secuencia.")
+            elif ilustracion == 'Estructura 3D de la Hélice':
+                mostrar_helice_3d(secuencia_adn)
         else:
             st.write("No se pudo obtener la secuencia. Verifica el número de acceso.")
     
