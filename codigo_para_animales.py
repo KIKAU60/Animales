@@ -1,3 +1,7 @@
+import sys
+sys.path.append('/ruta/al/directorio')
+from secuencias_adn import secuencias_adn
+
 import streamlit as st
 from funciones_adn import (
     generar_helice_adn_interactiva,
